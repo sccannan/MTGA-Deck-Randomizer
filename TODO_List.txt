@@ -1,0 +1,22 @@
+Make Unit Tests
+	-Need to chop program up into testable methods
+
+Documentation
+	-README, comments, pydocs
+
+Support All MTGA Games Modes
+	-Historic
+	-Traditional Standard
+	-Singleton
+	-Friendly Brawl
+	-Direct Game
+	-Artisan
+	-Limited
+	-Pauper
+	-Traditional Historic
+
+HTML GUI
+	-Code must take command line args
+	-HTML must run python (https://ourcodeworld.com/articles/read/286/how-to-execute-a-python-script-and-retrieve-output-data-and-errors-in-node-js)
+
+Need to make sure all the cards are in each set
