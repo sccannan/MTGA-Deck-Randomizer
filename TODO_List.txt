@@ -21,6 +21,8 @@ HTML GUI
 
 Need to make sure all the cards are in each set
 
+Deck now only picks cards of 1 color except for commander
+
 Need to check the following inputs
 	-List of sets (all strings)
 	-possible color combos

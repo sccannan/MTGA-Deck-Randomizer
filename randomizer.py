@@ -102,37 +102,130 @@ def verifyInformation(normal_rarity_percents, commander_rarity_percents, land_ra
 #----------------------------------------------------------
 #----------------------------------------------------------
 
+#----------------------------------------------------------
+#----------------------------------------------------------
+"""Loads the JSONs and returns a list for normal cards, commanders, and lands
 
+Args:
+    setsToInclude (list): A list of sets you want to pull from
+    
+Returns:
+    list: A list of normal cards
+    list: A list of commander cards
+    list: A list of land cards
+"""
+def load_json_sets(setsToInclude, deck_mode):
+    #Array index 0 = common, 1 = uncommon, 2 = rare, 3 = mythic
+    normal = [[], [], [], []]
+    commander = [[], [], [], []]
+    land = [[], [], [], []]
+    all_card_names = []
+
+    #For each set
+    for sets in setsToInclude:
+        data = ""
+
+        #Load the json
+        with open("./Sets/"+sets+".json", "r", encoding="utf8") as read_file:
+            data = json.load(read_file)
+
+        #For each card
+        for x in data["cards"]:
+
+            #See if the card has dual names
+            cardName = ""
+            if x["layout"] == "adventure": #adventure cards
+                if x["types"] == "Creature": #only look at the creature portion of the adventure
+                    cardName = x["names"][0]
+                else:
+                    continue
+            elif x["layout"] == "split": #split cards use both names
+                cardName = x["names"][0] + " // " + x["names"][1]
+            else:
+                cardName = x["name"]
+
+            #If that card is legal in the format we want and unique
+            if (x["legalities"][deck_mode] == "Legal" and cardName not in all_card_names):
+
+                #Track all card names
+                all_card_names.append(cardName)
+
+                #Set the magic number based on rarity
+                magic_number = 0
+                if x["rarity"].lower() == "common":
+                    magic_number = 0
+                elif x["rarity"].lower() == "uncommon":
+                    magic_number = 1
+                elif x["rarity"].lower() == "rare":
+                    magic_number = 2
+                elif x["rarity"].lower() == "mythic":
+                    magic_number = 3
+
+                #Find the color identity
+                colorIdentity = ""
+                for y in x["colorIdentity"]:
+                    colorIdentity = colorIdentity + y
+                colorIdentity = "".join(sorted(colorIdentity)).replace("/", "")
+
+                #If the card is a land card
+                if x["types"][0] == "Land":
+                    land[magic_number].append([cardName, colorIdentity, -1, -1])
+
+                else:
+                    normal[magic_number].append([cardName, colorIdentity, x["manaCost"].replace("/", ""), x["types"][0]])
+
+                    #If the card is a legendary creature or planeswalker, mark it as a commander
+                    if ((x["type"].find("Legendary Creature") != -1) or (x["type"].find("Legendary Planeswalker") != -1)):
+                        commander[magic_number].append([cardName, colorIdentity, x["manaCost"].replace("{", "").replace("}", ""), x["types"][0]])
+
+    return normal, commander, land
+#----------------------------------------------------------
+#----------------------------------------------------------
+
+#----------------------------------------------------------
+#----------------------------------------------------------
+"""Removes all cards that are not in the specified color
+
+Args:
+    card_list (list): A list of cards
+    colorCombo (str): The color combo you have
+
+Returns:
+    list: A list of cards with colors now removed
+"""
+def color_removal(card_list, colorCombo):
+    for x in range(len(card_list)):
+        markForDeletion = []
+        for y in range(len(card_list[x])):
+            if colorCombo.find(card_list[x][y][1]) == -1:
+                markForDeletion.append(y)
+        for y in sorted(markForDeletion, reverse = True):
+            del card_list[x][y]
+    return card_list
+#----------------------------------------------------------
+#----------------------------------------------------------
 
 #----------------------------------------------------------
 #----------------------------------------------------------
 """Randomly picks a card
 
 Args:
-    mana_cost (list): A list of each cards mana cost, split by rarities -- if flag = 1, this is the color(s) that a land can produce instead of mana cost
-    name (list): A list of each cards name, split by rarities
-    types (list): A list of each cards type, split by rarities
+    card_list (list): A list of each cards, split by rarities
     rarityPercents (list): A list of percentages (decimals) for each rarity
     deckCMC (list): A list of the number of colored and colorless mana symbols
     deck (list): A list of card names in the deck
-    flag (int): A integer to tell if we are dealing with lands (1) or not (0)
     artifact_percent (float) A decimal for how often we want to pick an artifact if we randomly select one
     basic_land_percent (float): A decimal for how often we want to pick a basic land
 
 Returns:
     list: A list of card names in the deck after the new card has been picked
     list: A list of the number of colored and colorless mana symbols after the new card has been picked
+    str: The color identity of the card that was just added
 """
-def pick_a_card(manaCost, name, types, rarityPercents, deckCMC, deck, flag, artifact_percent, basic_land_percent):
-     
-    #For lands, we need to pass in the color of the land as the manaCost
-    landColors = []
-    if flag == 1:
-        landColors = manaCost
-        manaCost = []
-
-    #See if you are picking a basic land
-    if manaCost == [] and types == [] and randint(0, 100) < 100*basic_land_percent:
+def pick_a_card(card_list, rarityPercents, deckCMC, deck, artifact_percent, basic_land_percent):
+    
+    #See if you are picking a basic land -- we check the first uncommon card, all card types have uncommons
+    if card_list[1][0][2] == -1 and card_list[1][0][3] == -1 and randint(0, 100) < 100*basic_land_percent:
 
         #Calculate the range for each basic land type
         basic_land_range = [[], [], [], [], []]
@@ -160,7 +253,7 @@ def pick_a_card(manaCost, name, types, rarityPercents, deckCMC, deck, flag, arti
                 if deckCMC[x] != 1 and deckCMC[x] != 0:
                     deckCMC[x] = deckCMC[x] - 1
                 break
-        return deck, deckCMC
+        return deck, deckCMC, ""
 
     #Set up rarity ranges
     common = [0, (rarityPercents[0] * 100) - 1]
@@ -179,228 +272,83 @@ def pick_a_card(manaCost, name, types, rarityPercents, deckCMC, deck, flag, arti
             break
 
     #See if a card of that rarity exists
-    if len(name[mode]) == 0:
-        return deck, deckCMC
+    if len(card_list[mode]) == 0:
+        return deck, deckCMC, ""
 
     #Pick the card
     else:
-        randomIndex = randint(0, len(name[mode])-1)
-        if ((deck_mode == "brawl" and name[mode][randomIndex] not in deck) or (deck_mode == "standard")):
-            if types != []:
-                if types[mode][randomIndex].find("Artifact") != -1 and randint(0, 100) > 100*artifact_percent and sum(deckCMC[:-1]) != 0: #Lowers odds of getting an artifact unless your deck is colorless
-                    return deck, deckCMC
-            deck.append(name[mode][randomIndex])
+        randomIndex = randint(0, len(card_list[mode])-1)
+        if ((deck_mode == "brawl" and card_list[mode][randomIndex][0] not in deck) or (deck_mode == "standard")):
+            if card_list[mode][randomIndex][3] != -1:
+                #Lowers odds of getting an artifact unless your deck is colorless
+                if card_list[mode][randomIndex][3].find("Artifact") != -1 and randint(0, 100) > 100*artifact_percent and sum(deckCMC[:-1]) != 0:
+                    return deck, deckCMC, ""
+            deck.append(card_list[mode][randomIndex][0])
 
             #Update CMC
             manaSymbols = ["R", "W", "B", "U", "G"]
-            if manaCost != []:
-                for y in manaCost[mode][randomIndex].replace("{", "").replace("}", ""):
+            if card_list[mode][randomIndex][2] != -1:
+                for y in card_list[mode][randomIndex][2]:
                     if y in manaSymbols:
                         deckCMC[manaSymbols.index(y)] = deckCMC[manaSymbols.index(y)] + 1
                     else:
                         try:
                             deckCMC[5] = deckCMC[5] + int(y)
-                        except:
+                        except: #X costs
                             deckCMC[5] = deckCMC[5] + 0
             
             #Update CMC for lands
-            if landColors != []:
-                land_color = landColors[mode][randomIndex]
+            else:
+                land_color = card_list[mode][randomIndex][1]
                 for y in manaSymbols:
                     if y in land_color and deckCMC[manaSymbols.index(y)] != 1 and deckCMC[manaSymbols.index(y)] != 0:
                         deckCMC[manaSymbols.index(y)] = deckCMC[manaSymbols.index(y)] - 1
-    return deck, deckCMC
+    return deck, deckCMC, card_list[mode][randomIndex][1]
+#----------------------------------------------------------
 #----------------------------------------------------------
 
 #----------------------------------------------------------
-#Main method, used for generating a deck
 #----------------------------------------------------------
-def generateDeck(setsToInclude, normal_rarity_percents, commander_rarity_percents, land_rarity_percents, artifact_percent, basic_land_percent, basic_land_percent_removal, deck_mode, numberOfLands, possibleColorCombos, sideBoard):
+"""A helper function for picking a card
 
-    retCode = verifyInformation(normal_rarity_percents, commander_rarity_percents, land_rarity_percents, artifact_percent, basic_land_percent, basic_land_percent_removal, deck_mode, numberOfLands)
+Args:
+    card_list (list): A list of each cards, split by rarities
+    rarityPercents (list): A list of percentages (decimals) for each rarity
+    deckCMC (list): A list of the number of colored and colorless mana symbols
+    deck (list): A list of card names in the deck
+    artifact_percent (float) A decimal for how often we want to pick an artifact if we randomly select one
+    basic_land_percent (float): A decimal for how often we want to pick a basic land
 
-    deck_size = 0
-    try:
-        deck_size = int(retCode)
-    except:
-        return retCode
-
-    #Array index 0 = common, 1 = uncommon, 2 = rare, 3 = mythic
-    name = [[], [], [], []]
-    colors = [[], [], [], []]
-    manaCost = [[], [], [], []]
-    types = [[], [], [], []]
-
-    commanders = [[], [], [], []]
-    commanderColorCombo = [[], [], [], []]
-    commanderManaCost = [[], [], [], []]
-
-    lands = [[], [], [], []]
-    landColors = [[], [], [], []]
-
-    all_card_names = []
-
-    #For each set
-    for sets in setsToInclude:
-        data = ""
-
-        #Load the json
-        with open("./Sets/"+sets+".json", "r", encoding="utf8") as read_file:
-            data = json.load(read_file)
-
-        #For each card
-        for x in data["cards"]:
-
-            #See if the card has dual names
-            cardName = ""
-            if x["layout"] == "adventure": #adventure cards
-                if x["types"] == "Creature": #only look at the creature portion of the adventure
-                    cardName = x["names"][0]
-                else:
-                    continue
-            elif x["layout"] == "split": #split cards use both names
-                cardName = x["names"][0] + " // " + x["names"][1]
-            else:
-                cardName = x["name"]
-
-            #If that card is legal in the format we want and unique
-            if (((x["legalities"]["brawl"] == "Legal" and deck_mode == "brawl") or (x["legalities"]["standard"] == "Legal" and deck_mode == "standard")) and (cardName not in all_card_names)):
-
-                #Track all card names
-                all_card_names.append(cardName)
-
-                #Set the magic number based on rarity
-                magic_number = 0
-                if x["rarity"].lower() == "common":
-                    magic_number = 0
-                elif x["rarity"].lower() == "uncommon":
-                    magic_number = 1
-                elif x["rarity"].lower() == "rare":
-                    magic_number = 2
-                elif x["rarity"].lower() == "mythic":
-                    magic_number = 3
-
-                #Find the color identity
-                colorIdentity = ""
-                for y in x["colorIdentity"]:
-                    colorIdentity = colorIdentity + y
-                colorIdentity = "".join(sorted(colorIdentity)).replace("/", "")
-
-                #If the card is a land card
-                if x["types"][0] == "Land":
-                    lands[magic_number].append(cardName)
-                    landColors[magic_number].append(colorIdentity)
-
-                else:
-                    colors[magic_number].append(colorIdentity)
-                    manaCost[magic_number].append(x["manaCost"].replace("/", ""))
-                    name[magic_number].append(cardName)
-                    types[magic_number].append(x["types"][0])
-
-                    #If the card is a legendary creature or planeswalker, mark it as a commander
-                    if ((x["type"].find("Legendary Creature") != -1) or (x["type"].find("Legendary Planeswalker") != -1)):
-                        commanders[magic_number].append(cardName)
-                        commanderColorCombo[magic_number].append(colorIdentity)
-                        commanderManaCost[magic_number].append(x["manaCost"].replace("{", "").replace("}", ""))
-
-    colorCombo = ""
-    deckCMC = [0, 0, 0, 0, 0, 0] #R, W, B, U, G, Colorless
-    deck = []
-
-    #Sort all the color combos
-    for x in range(len(possibleColorCombos)):
-        possibleColorCombos[x] = "".join(sorted(possibleColorCombos[x]))
-
-    #If standard, pick a color combo
-    if deck_mode == "standard":
-        colorCombo = possibleColorCombos[randint(0, len(possibleColorCombos)-1)]
-
-    #If commander, pick a commander that fits a color combo
-    else:
-        attempts = 0
-        while len(deck) < 1:
-            deck, deckCMC = pick_a_card(commanderManaCost, commanders, [], commander_rarity_percents, deckCMC, deck, 0, artifact_percent, basic_land_percent)
-            attempts = attempts + 1
-            for x in range(len(commanders)):
-                try:
-                    colorCombo = commanderColorCombo[x][commanders[x].index(deck[0])]
-                    break
-                except:
-                    colorCombo = "N/A"
-            if colorCombo not in possibleColorCombos:
-                deck = []
-                deckCMC = [0, 0, 0, 0, 0, 0]
-            if attempts > 1000:
-                return("Warning! After 1000 attempts, a commander could not be found. Please change your rarity values to allow for more cards to be chosen")
-
-    #The more colors in your deck, the less likely you are to get basics
-    if len(colorCombo) > 1:
-        basic_land_percent = basic_land_percent - (len(colorCombo) * basic_land_percent_removal)
-
-    #Remove all cards that are not part of the colorCombo
-    for x in range(len(colors)):
-        markForDeletion = []
-        for y in range(len(colors[x])):
-            if colorCombo.find(colors[x][y]) == -1:
-                markForDeletion.append(y)
-        for y in sorted(markForDeletion, reverse = True):
-            del colors[x][y]
-            del manaCost[x][y]
-            del name[x][y]
-            del types[x][y]
-    for x in range(len(landColors)):
-        markForDeletion = []
-        for y in range(len(landColors[x])):
-            if colorCombo.find(landColors[x][y]) == -1:
-                markForDeletion.append(y)
-        for y in sorted(markForDeletion, reverse = True):
-            del lands[x][y]
-            del landColors[x][y]
-
-    #Set up the base number of times to loop
-    if deck_mode == "standard":
-        numberOfLoops = deck_size - numberOfLands[1]
-    else:
-        numberOfLoops = deck_size - numberOfLands[1] - 1 #-1 b/c you already have the commander
-
-    #Start picking normal cards
+Returns:
+    list: A list of card names in the deck after the new card has been picked
+    list: A list of the number of colored and colorless mana symbols after the new card has been picked
+    str: The color identity of the card that was just added
+    str: Null if correct, error message if error
+"""
+def pick_a_card_helper(card_list, rarityPercents, deckCMC, deck, artifact_percent, basic_land_percent, numberOfLoops):
     attempts = 0
     while len(deck) < numberOfLoops:
-        deck, deckCMC = pick_a_card(manaCost, name, types, normal_rarity_percents, deckCMC, deck, 0, artifact_percent, basic_land_percent)
+        deck, deckCMC, color = pick_a_card(card_list, rarityPercents, deckCMC, deck, artifact_percent, basic_land_percent)
         attempts = attempts + 1
         if attempts > 1000:
-            return("Warning! After 1000 attempts, a normal card could not be found. Please change your rarity values to allow for more cards to be chosen")
+            return [], [], [], ("Warning! After 1000 attempts, a normal card could not be found. Please change your rarity values to allow for more cards to be chosen")
+    return deck, deckCMC, color, ""
+#----------------------------------------------------------
+#----------------------------------------------------------
 
-    #Calculate the average cmc of the deck
-    averageCMC = int(round(sum(deckCMC)/len(deck)))
-    numLands = numberOfLands[0] + averageCMC - 1
-    if numLands > numberOfLands[1]:
-        numLands = numberOfLands[1]
+#----------------------------------------------------------
+#----------------------------------------------------------
+"""Turns the deck into an MTGA formatted string
 
-    #Start picking lands
-    ogDeckSize = len(deck)
-    attempts = 0
-    while len(deck) < numLands + ogDeckSize:
-        deck, deckCMC = pick_a_card(landColors, lands, [], land_rarity_percents, deckCMC, deck, 1, artifact_percent, basic_land_percent)
-        if attempts > 1000:
-            return("Warning! After 1000 attempts, a normal card could not be found. Please change your rarity values to allow for more cards to be chosen")
+Args:
+    deck (list): A list of each card in the deck
+    deck_size (int): How large the deck is, not including the sideboard
+    sideBoard (bool): True if there is a sideBoard present
 
-    #Might need to pick more cards
-    attempts = 0
-    while len(deck) < deck_size:
-        deck, deckCMC = pick_a_card(manaCost, name, types, normal_rarity_percents, deckCMC, deck, 0, artifact_percent, basic_land_percent)
-        if attempts > 1000:
-            return("Warning! After 1000 attempts, a normal card could not be found. Please change your rarity values to allow for more cards to be chosen")
-
-    #Sideboard
-    if sideBoard == True:
-        attempts = 0
-        while len(deck) < deck_size+15:
-            deck, deckCMC = pick_a_card(manaCost, name, types, normal_rarity_percents, deckCMC, deck, 0, artifact_percent, basic_land_percent)
-            if attempts > 1000:
-                return("Warning! After 1000 attempts, a normal card could not be found. Please change your rarity values to allow for more cards to be chosen")
-
-    #Print deck
+Returns:
+    str: The MTGA formatted string of the deck
+"""
+def print_deck(deck, deck_size, sideBoard):
     deck_to_return = ""
     basics = [0, 0, 0, 0, 0]
     basicLands = ["Mountain", "Plains", "Swamp", "Island", "Forest"]
@@ -428,6 +376,82 @@ def generateDeck(setsToInclude, normal_rarity_percents, commander_rarity_percent
         for x in range(len(deck)-deck_size):
             deck_to_return = deck_to_return + "1 "+ deck[x+deck_size] + "\n"
     return deck_to_return[:-1]
+#----------------------------------------------------------
+#----------------------------------------------------------
+
+#----------------------------------------------------------
+#Main method, used for generating a deck
+#----------------------------------------------------------
+def generateDeck(setsToInclude, normal_rarity_percents, commander_rarity_percents, land_rarity_percents, artifact_percent, basic_land_percent, basic_land_percent_removal, deck_mode, numberOfLands, possibleColorCombos, sideBoard):
+
+    retCode = verifyInformation(normal_rarity_percents, commander_rarity_percents, land_rarity_percents, artifact_percent, basic_land_percent, basic_land_percent_removal, deck_mode, numberOfLands)
+
+    deck_size = 0
+    try:
+        deck_size = int(retCode)
+    except:
+        return retCode
+
+    normal, commander, land = load_json_sets(setsToInclude, deck_mode)
+    colorCombo = ""
+    deckCMC = [0, 0, 0, 0, 0, 0] #R, W, B, U, G, Colorless
+    deck = []
+
+    #If standard, pick a color combo
+    if deck_mode == "standard":
+        colorCombo = possibleColorCombos[randint(0, len(possibleColorCombos)-1)]
+
+    #If commander, pick a commander that fits a color combo
+    else:
+        attempts = 0
+        while len(deck) < 1:
+            deck, deckCMC, colorCombo = pick_a_card(commander, commander_rarity_percents, deckCMC, deck, artifact_percent, basic_land_percent)
+            attempts = attempts + 1
+            if colorCombo not in possibleColorCombos:
+                deck = []
+                deckCMC = [0, 0, 0, 0, 0, 0]
+            if attempts > 1000:
+                return("Warning! After 1000 attempts, a commander could not be found. Please change your rarity values to allow for more cards to be chosen")
+
+    #The more colors in your deck, the less likely you are to get basics
+    if len(colorCombo) > 1:
+        basic_land_percent = basic_land_percent - (len(colorCombo) * basic_land_percent_removal)
+
+    #Remove all cards that are not part of the colorCombo
+    normal = color_removal(normal, colorCombo)
+    land = color_removal(land, colorCombo)
+
+    #Start picking normal cards
+    numberOfLoops = deck_size - numberOfLands[1] - len(deck)
+    deck, deckCMC, colorCombo, error = pick_a_card_helper(normal, normal_rarity_percents, deckCMC, deck, artifact_percent, basic_land_percent, numberOfLoops)
+    if error != "":
+        return(error)
+
+    #Calculate the average cmc of the deck
+    averageCMC = int(round(sum(deckCMC)/len(deck)))
+    numLands = numberOfLands[0] + averageCMC - 1
+    if numLands > numberOfLands[1]:
+        numLands = numberOfLands[1]
+
+    #Start picking lands
+    numberOfLoops = len(deck) + numLands
+    deck, deckCMC, colorCombo, error = pick_a_card_helper(land, land_rarity_percents, deckCMC, deck, artifact_percent, basic_land_percent, numberOfLoops)
+    if error != "":
+        return(error)
+
+    #Might need to pick more cards
+    deck, deckCMC, colorCombo, error = pick_a_card_helper(normal, normal_rarity_percents, deckCMC, deck, artifact_percent, basic_land_percent, deck_size)
+    if error != "":
+        return(error)
+
+    #Sideboard
+    if sideBoard == True:
+        deck, deckCMC, colorCombo, error = pick_a_card_helper(normal, normal_rarity_percents, deckCMC, deck, artifact_percent, basic_land_percent, deck_size+15)
+        if error != "":
+            return(error) 
+
+    #Print deck
+    return(print_deck(deck, deck_size, sideBoard))
 #----------------------------------------------------------
 
 #----------------------------------------------------------
@@ -519,9 +543,12 @@ if __name__ == "__main__":
     #The possible color combinations your deck could be
     possibleColorCombos = ["", "R", "W", "G", "U", "B", "RW", "RG", "RU", "RB", "WG", "WU", "WB", "GU", "GB", "UB", "RGB", "WGU", "BRU", "GWR", "UWB", "URW", "RWB", "BGU", "RUG", "WGB"]
 
+    #Sort all the color combos
+    for x in range(len(possibleColorCombos)):
+        possibleColorCombos[x] = "".join(sorted(possibleColorCombos[x]))
+
     #TODO -- should be a checkbox
     sideBoard = False
 
-    returned = generateDeck(setsToInclude, normal_rarity_percents, commander_rarity_percents, land_rarity_percents, artifact_percent, basic_land_percent, basic_land_percent_removal, deck_mode, numberOfLands, possibleColorCombos, sideBoard)    
-    print(returned)
+    print(generateDeck(setsToInclude, normal_rarity_percents, commander_rarity_percents, land_rarity_percents, artifact_percent, basic_land_percent, basic_land_percent_removal, deck_mode, numberOfLands, possibleColorCombos, sideBoard))    
 #----------------------------------------------------------
