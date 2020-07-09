@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import json
 from random import randint
+import argparse
 
 #---------------------------------------------------------
 #---------------------------------------------------------
@@ -8,6 +9,7 @@ from random import randint
    Should be captured by html code, but now we can double check and catch from a command line run
 
 Args:
+    sets (list): A list of True/False values for including certain sets
     normal_rarity_percents (list): A list of percentages (decimals) for each rarity (for normal cards - not lands or commanders)
     commander_rarity_percents (list): A list of percentages (decimals) for each rarity for commanders
     land_rarity_percents (list): A list of percentages (decimals) for each rarity for lands
@@ -19,69 +21,81 @@ Args:
 
 Returns:
     str: Either an error message on failure, or a string representation of the deck size
+    list: The sets to include
 """
-def verifyInformation(normal_rarity_percents, commander_rarity_percents, land_rarity_percents, artifact_percent, basic_land_percent, basic_land_percent_removal, deck_mode, numberOfLands):
+def verifyInformation(sets, normal_rarity_percents, commander_rarity_percents, land_rarity_percents, artifact_percent, basic_land_percent, basic_land_percent_removal, deck_mode, numberOfLands):
 
+    #The sets you want to draw cards from
+    setsToInclude = []
+    possibleSets = ["DOM", "HA1", "HA2", "HA3", "E02", "RIX", "M19", "GRN", "RNA", "WAR", "M20", "ELD", "THB", "IKO", "M21"]
+    for x in range(len(sets)):
+        if sets[x].lower() == "true":
+            setsToInclude.append(possibleSets[x])
+        elif sets[x].lower() == "false":
+            pass
+        else:
+            return("Error! All set values must be True or False!"), []
+    
     #Make sure the normal/commander/land percentages are numbers, total 1, there are no negative values, and that there are only 4 values present
     if len(normal_rarity_percents) != 4:
-        return("Error! There are only 4 rarities in MTG - the provided normal rarities list has", len(normal_rarity_percents))
+        return("Error! There are only 4 rarities in MTG - the provided normal rarities list has", len(normal_rarity_percents)), []
     if len(commander_rarity_percents) != 4:
-        return("Error! There are only 4 rarities in MTG - the provided commander rarities list has", len(commander_rarity_percents))
+        return("Error! There are only 4 rarities in MTG - the provided commander rarities list has", len(commander_rarity_percents)), []
     if len(land_rarity_percents) != 4:
-        return("Error! There are only 4 rarities in MTG - the provided land rarities has", len(land_rarity_percents))
+        return("Error! There are only 4 rarities in MTG - the provided land rarities has", len(land_rarity_percents)), []
     for x in range(4):
         try:
             normal_rarity_percents[x] = float(normal_rarity_percents[x])
         except:
-            return("Error! Non numeric value detected for normal rarity decimals")
+            return("Error! Non numeric value detected for normal rarity decimals"), []
         if normal_rarity_percents[x] < 0:
-            return("Error! Negative value detected for normal rarity decimals")
+            return("Error! Negative value detected for normal rarity decimals"), []
         try:
             commander_rarity_percents[x] = float(commander_rarity_percents[x])
         except:
-            return("Error! Non numeric value detected for commander rarity decimals")
+            return("Error! Non numeric value detected for commander rarity decimals, []")
         if commander_rarity_percents[x] < 0:
-            return("Error! Negative value detected for commander rarity decimals")
+            return("Error! Negative value detected for commander rarity decimals"), []
         try:
             land_rarity_percents[x] = float(land_rarity_percents[x])
         except:
-            return("Error! Non numeric value detected for land rarity decimals")
+            return("Error! Non numeric value detected for land rarity decimals"), []
         if land_rarity_percents[x] < 0:
-            return("Error! Negative value detected for land rarity decimals")
+            return("Error! Negative value detected for land rarity decimals"), []
     if sum(normal_rarity_percents) != 1:
-        return("Error! Normal rarity decimals dont equal 1")
+        return("Error! Normal rarity decimals dont equal 1"), []
     if sum(commander_rarity_percents) != 1:
-        return("Error! Commander rarity decimals dont equal 1")
+        return("Error! Commander rarity decimals dont equal 1"), []
     if sum(land_rarity_percents) != 1:
-        return("Error! Land rarity decimals dont equal 1")
+        return("Error! Land rarity decimals dont equal 1"), []
 
     #Makes sure artifact percentage is 0<x<1 and is a number
     try:
         artifact_percent = float(artifact_percent)
     except:
-        return("Error! Non numeric value detected for artifact percentage")
+        return("Error! Non numeric value detected for artifact percentage"), []
     if artifact_percent > 1 or artifact_percent < 0:
-        return("Error! Artifact percentage decimal isnt between 0 and 1")
+        return("Error! Artifact percentage decimal isnt between 0 and 1"), []
 
     #Makes sure basic lands percentage is 0<x<1 and is a number
     try:
         basic_land_percent = float(basic_land_percent)
     except:
-        return("Error! Non numeric value detected for basic land percentage")
+        return("Error! Non numeric value detected for basic land percentage"), []
     if basic_land_percent > 1 or basic_land_percent < 0:
-        return("Error! Basic land percentage decimal isnt between 0 and 1")
+        return("Error! Basic land percentage decimal isnt between 0 and 1"), []
 
     #Makes sure basic lands removal percentage is 0<x<1 and is a number
     try:
         basic_land_percent_removal = float(basic_land_percent_removal)
     except:
-        return("Error! Non numeric value detected for basic land removal percentage decimal")
+        return("Error! Non numeric value detected for basic land removal percentage decimal"), []
     if basic_land_percent_removal > 1 or basic_land_percent_removal < 0:
-        return("Error! Basic land removal percentage decimal isnt between 0 and 1")
+        return("Error! Basic land removal percentage decimal isnt between 0 and 1"), []
 
     #Make sure the deck mode is supported
     if deck_mode != "brawl" and deck_mode != "standard":
-        return("Error! Unsupported deck mode! Current options are brawl and standard")
+        return("Error! Unsupported deck mode! Current options are brawl and standard"), []
     
     #Set the deck size
     deck_size = 0
@@ -93,12 +107,12 @@ def verifyInformation(normal_rarity_percents, commander_rarity_percents, land_ra
         min_lands = int(round(numberOfLands[0]))
         max_lands = int(round(numberOfLands[1]))
     except:
-        return("Error! Non numeric value detected for minimum and/or maximum number of lands")
+        return("Error! Non numeric value detected for minimum and/or maximum number of lands"), []
     if min_lands > max_lands:
-        return("Error! Minimum lands must be less than or equal too maximum lands")
+        return("Error! Minimum lands must be less than or equal too maximum lands"), []
     if max_lands > int(deck_size):
-        return("Error! Maximum lands must be less than or equal too the maximum deck size")
-    return deck_size
+        return("Error! Maximum lands must be less than or equal too the maximum deck size"), []
+    return deck_size, setsToInclude
 #----------------------------------------------------------
 #----------------------------------------------------------
 
@@ -120,17 +134,25 @@ def load_json_sets(setsToInclude, deck_mode):
     commander = [[], [], [], []]
     land = [[], [], [], []]
     all_card_names = []
+    rare = ["common", "uncommon", "rare", "mythic"]
 
     #For each set
     for sets in setsToInclude:
         data = ""
-
+        
         #Load the json
         with open("./Sets/"+sets+".json", "r", encoding="utf8") as read_file:
             data = json.load(read_file)
 
+        #Some files are written differently
+        jsonIndex = ""
+        try:
+            jsonIndex = data["cards"]
+        except:
+            jsonIndex = data["data"]["cards"]
+
         #For each card
-        for x in data["cards"]:
+        for x in jsonIndex:
 
             #See if the card has dual names
             cardName = ""
@@ -145,22 +167,19 @@ def load_json_sets(setsToInclude, deck_mode):
                 cardName = x["name"]
 
             #If that card is legal in the format we want and unique
-            if (x["legalities"][deck_mode] == "Legal" and cardName not in all_card_names):
+            try:
+                legalResult = x["legalities"][deck_mode]
+            except:
+                legalResult = "Not Legal"
+
+            if (legalResult == "Legal" and cardName not in all_card_names):
 
                 #Track all card names
                 all_card_names.append(cardName)
 
                 #Set the magic number based on rarity
-                magic_number = 0
-                if x["rarity"].lower() == "common":
-                    magic_number = 0
-                elif x["rarity"].lower() == "uncommon":
-                    magic_number = 1
-                elif x["rarity"].lower() == "rare":
-                    magic_number = 2
-                elif x["rarity"].lower() == "mythic":
-                    magic_number = 3
-
+                magic_number = rare.index(x["rarity"].lower())
+                 
                 #Find the color identity
                 colorIdentity = ""
                 for y in x["colorIdentity"]:
@@ -216,16 +235,19 @@ Args:
     deck (list): A list of card names in the deck
     artifact_percent (float) A decimal for how often we want to pick an artifact if we randomly select one
     basic_land_percent (float): A decimal for how often we want to pick a basic land
+    landFlag (int): 0 if we are looking at lands
 
 Returns:
     list: A list of card names in the deck after the new card has been picked
     list: A list of the number of colored and colorless mana symbols after the new card has been picked
     str: The color identity of the card that was just added
 """
-def pick_a_card(card_list, rarityPercents, deckCMC, deck, artifact_percent, basic_land_percent):
+def pick_a_card(card_list, rarityPercents, deckCMC, deck, artifact_percent, basic_land_percent, landFlag):
     
     #See if you are picking a basic land -- we check the first uncommon card, all card types have uncommons
-    if card_list[1][0][2] == -1 and card_list[1][0][3] == -1 and randint(0, 100) < 100*basic_land_percent:
+
+
+    if landFlag == 0 and randint(0, 100) < 100*basic_land_percent:
 
         #Calculate the range for each basic land type
         basic_land_range = [[], [], [], [], []]
@@ -318,6 +340,7 @@ Args:
     deck (list): A list of card names in the deck
     artifact_percent (float) A decimal for how often we want to pick an artifact if we randomly select one
     basic_land_percent (float): A decimal for how often we want to pick a basic land
+    landFlag (int): 0 if we are looking at lands
 
 Returns:
     list: A list of card names in the deck after the new card has been picked
@@ -325,10 +348,10 @@ Returns:
     str: The color identity of the card that was just added
     str: Null if correct, error message if error
 """
-def pick_a_card_helper(card_list, rarityPercents, deckCMC, deck, artifact_percent, basic_land_percent, numberOfLoops):
+def pick_a_card_helper(card_list, rarityPercents, deckCMC, deck, artifact_percent, basic_land_percent, numberOfLoops, landFlag):
     attempts = 0
     while len(deck) < numberOfLoops:
-        deck, deckCMC, color = pick_a_card(card_list, rarityPercents, deckCMC, deck, artifact_percent, basic_land_percent)
+        deck, deckCMC, color = pick_a_card(card_list, rarityPercents, deckCMC, deck, artifact_percent, basic_land_percent, landFlag)
         attempts = attempts + 1
         if attempts > 1000:
             return [], [], [], ("Warning! After 1000 attempts, a normal card could not be found. Please change your rarity values to allow for more cards to be chosen")
@@ -384,7 +407,7 @@ def print_deck(deck, deck_size, sideBoard):
 #----------------------------------------------------------
 def generateDeck(setsToInclude, normal_rarity_percents, commander_rarity_percents, land_rarity_percents, artifact_percent, basic_land_percent, basic_land_percent_removal, deck_mode, numberOfLands, possibleColorCombos, sideBoard):
 
-    retCode = verifyInformation(normal_rarity_percents, commander_rarity_percents, land_rarity_percents, artifact_percent, basic_land_percent, basic_land_percent_removal, deck_mode, numberOfLands)
+    retCode, setsToInclude = verifyInformation(setsToInclude, normal_rarity_percents, commander_rarity_percents, land_rarity_percents, artifact_percent, basic_land_percent, basic_land_percent_removal, deck_mode, numberOfLands)
 
     deck_size = 0
     try:
@@ -405,7 +428,7 @@ def generateDeck(setsToInclude, normal_rarity_percents, commander_rarity_percent
     else:
         attempts = 0
         while len(deck) < 1:
-            deck, deckCMC, colorCombo = pick_a_card(commander, commander_rarity_percents, deckCMC, deck, artifact_percent, basic_land_percent)
+            deck, deckCMC, colorCombo = pick_a_card(commander, commander_rarity_percents, deckCMC, deck, artifact_percent, basic_land_percent, 1)
             attempts = attempts + 1
             if colorCombo not in possibleColorCombos:
                 deck = []
@@ -423,7 +446,7 @@ def generateDeck(setsToInclude, normal_rarity_percents, commander_rarity_percent
 
     #Start picking normal cards
     numberOfLoops = deck_size - numberOfLands[1] - len(deck)
-    deck, deckCMC, colorCombo, error = pick_a_card_helper(normal, normal_rarity_percents, deckCMC, deck, artifact_percent, basic_land_percent, numberOfLoops)
+    deck, deckCMC, colorCombo, error = pick_a_card_helper(normal, normal_rarity_percents, deckCMC, deck, artifact_percent, basic_land_percent, numberOfLoops, 1)
     if error != "":
         return(error)
 
@@ -435,18 +458,18 @@ def generateDeck(setsToInclude, normal_rarity_percents, commander_rarity_percent
 
     #Start picking lands
     numberOfLoops = len(deck) + numLands
-    deck, deckCMC, colorCombo, error = pick_a_card_helper(land, land_rarity_percents, deckCMC, deck, artifact_percent, basic_land_percent, numberOfLoops)
+    deck, deckCMC, colorCombo, error = pick_a_card_helper(land, land_rarity_percents, deckCMC, deck, artifact_percent, basic_land_percent, numberOfLoops, 0)
     if error != "":
         return(error)
 
     #Might need to pick more cards
-    deck, deckCMC, colorCombo, error = pick_a_card_helper(normal, normal_rarity_percents, deckCMC, deck, artifact_percent, basic_land_percent, deck_size)
+    deck, deckCMC, colorCombo, error = pick_a_card_helper(normal, normal_rarity_percents, deckCMC, deck, artifact_percent, basic_land_percent, deck_size, 1)
     if error != "":
         return(error)
 
     #Sideboard
     if sideBoard == True:
-        deck, deckCMC, colorCombo, error = pick_a_card_helper(normal, normal_rarity_percents, deckCMC, deck, artifact_percent, basic_land_percent, deck_size+15)
+        deck, deckCMC, colorCombo, error = pick_a_card_helper(normal, normal_rarity_percents, deckCMC, deck, artifact_percent, basic_land_percent, deck_size+15, 1)
         if error != "":
             return(error) 
 
@@ -459,40 +482,27 @@ def generateDeck(setsToInclude, normal_rarity_percents, commander_rarity_percent
 #----------------------------------------------------------
 if __name__ == "__main__":
 
-    #TODO -- These should be check boxes on html
+    #Argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("DOM", help="True if you want to include Dominaria, False otherwise")
+    parser.add_argument("HA1", help="True if you want to include Historic Anthology 1, False otherwise")
+    parser.add_argument("HA2", help="True if you want to include Historic Anthology 2, False otherwise")
+    parser.add_argument("HA3", help="True if you want to include Historic Anthology 3, False otherwise")
+    parser.add_argument("E02", help="True if you want to include Ixalan, False otherwise")
+    parser.add_argument("RIX", help="True if you want to include Rivals of Ixalan, False otherwise")
+    parser.add_argument("M19", help="True if you want to include Core 2019, False otherwise")
+    parser.add_argument("GRN", help="True if you want to include Guilds of Ravnica, False otherwise")
+    parser.add_argument("RNA", help="True if you want to include Ravnica Allegiance, False otherwise")
+    parser.add_argument("WAR", help="True if you want to include War of the Spark, False otherwise")
+    parser.add_argument("M20", help="True if you want to include Core 2020, False otherwise")
+    parser.add_argument("ELD", help="True if you want to include Throne of Eldraine, False otherwise")
+    parser.add_argument("THB", help="True if you want to include Theros Beyond Death, False otherwise")
+    parser.add_argument("IKO", help="True if you want to include Ikoria, False otherwise")
+    parser.add_argument("M21", help="True if you want to include Core 2021, False otherwise")
+    args = parser.parse_args()
+
     #The sets you want to draw cards from
-    dominaria = False
-    historic_anthology_1 = False
-    historic_anthology_2 = False
-    historic_anthology_3 = False
-    ixalan = False
-    rivals_of_ixalan = False
-    core_2019 = False
-    guilds_of_ravnica = True
-    ravnica_allegiance = True
-    war_of_the_spark = True
-    core_2020 = True
-    throne_of_eldraine = True
-    theros_beyond_death = True
-    ikoria = True
-    core_2021 = True
-    setsToInclude = []
-    if guilds_of_ravnica == True:
-        setsToInclude.append("GRN")
-    if ravnica_allegiance == True:
-        setsToInclude.append("RNA")
-    if war_of_the_spark == True:
-        setsToInclude.append("WAR")
-    if core_2020 == True:
-        setsToInclude.append("M20")
-    if throne_of_eldraine == True:
-        setsToInclude.append("ELD")
-    if theros_beyond_death == True:
-        setsToInclude.append("THB")
-    if ikoria == True:
-        setsToInclude.append("IKO")
-    if core_2021 == True:
-        setsToInclude.append("M21")
+    setsToInclude = [args.DOM, args.HA1, args.HA2, args.HA3, args.E02, args.RIX, args.M19, args.GRN, args.RNA, args.WAR, args.M20, args.ELD, args.THB, args.IKO, args.M21]
 
     #TODO -- https://www.w3schools.com/tags/att_input_type_number.asp -- assume values between 0 and 1
     #The odds you will get a normal card of a certain rarity (written as decimals, must add to 1)
