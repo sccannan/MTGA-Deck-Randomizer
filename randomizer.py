@@ -2,20 +2,50 @@
 import json
 from random import randint
 
+#---------------------------------------------------------
+#---------------------------------------------------------
+"""Makes sure all passed in information is valid (correct typing, values, etc)
+   Should be captured by html code, but now we can double check and catch from a command line run
 
-#----------------------------------------------------------
-#Method for making sure all information is valid
-#The HTML code should handle most of the info validation, but we double check because better safe than sorry
-#Returns an error message, or the deck size
-#----------------------------------------------------------
+Args:
+    normal_rarity_percents (list): A list of percentages (decimals) for each rarity (for normal cards - not lands or commanders)
+    commander_rarity_percents (list): A list of percentages (decimals) for each rarity for commanders
+    land_rarity_percents (list): A list of percentages (decimals) for each rarity for lands
+    artifact_percents (float): A decimal for how often we want to pick an artifact if we randomly select one
+    basic_land_percent (float): A decimal for how often we want to pick a basic land
+    basic_land_removal_percent (float): A decimal for modifying basic_land_percent
+    deck_mode (str): A string representing what type of format we want to use
+    numberOfLands (list): A list containing the minimum number of lands you want in a deck, and the maximum number of lands you want in a deck
+
+Returns:
+    str: Either an error message on failure, or a string representation of the deck size
+"""
 def verifyInformation(normal_rarity_percents, commander_rarity_percents, land_rarity_percents, artifact_percent, basic_land_percent, basic_land_percent_removal, deck_mode, numberOfLands):
 
-    #Make sure the user percentages total 1 and there are no negative values
-    for x in range(len(normal_rarity_percents)):
+    #Make sure the normal/commander/land percentages are numbers, total 1, there are no negative values, and that there are only 4 values present
+    if len(normal_rarity_percents) != 4:
+        return("Error! There are only 4 rarities in MTG - the provided normal rarities list has", len(normal_rarity_percents))
+    if len(commander_rarity_percents) != 4:
+        return("Error! There are only 4 rarities in MTG - the provided commander rarities list has", len(commander_rarity_percents))
+    if len(land_rarity_percents) != 4:
+        return("Error! There are only 4 rarities in MTG - the provided land rarities has", len(land_rarity_percents))
+    for x in range(4):
+        try:
+            normal_rarity_percents[x] = float(normal_rarity_percents[x])
+        except:
+            return("Error! Non numeric value detected for normal rarity decimals")
         if normal_rarity_percents[x] < 0:
             return("Error! Negative value detected for normal rarity decimals")
+        try:
+            commander_rarity_percents[x] = float(commander_rarity_percents[x])
+        except:
+            return("Error! Non numeric value detected for commander rarity decimals")
         if commander_rarity_percents[x] < 0:
             return("Error! Negative value detected for commander rarity decimals")
+        try:
+            land_rarity_percents[x] = float(land_rarity_percents[x])
+        except:
+            return("Error! Non numeric value detected for land rarity decimals")
         if land_rarity_percents[x] < 0:
             return("Error! Negative value detected for land rarity decimals")
     if sum(normal_rarity_percents) != 1:
@@ -25,15 +55,27 @@ def verifyInformation(normal_rarity_percents, commander_rarity_percents, land_ra
     if sum(land_rarity_percents) != 1:
         return("Error! Land rarity decimals dont equal 1")
 
-    #Makes sure artifact percentage is 0<x<1
+    #Makes sure artifact percentage is 0<x<1 and is a number
+    try:
+        artifact_percent = float(artifact_percent)
+    except:
+        return("Error! Non numeric value detected for artifact percentage")
     if artifact_percent > 1 or artifact_percent < 0:
         return("Error! Artifact percentage decimal isnt between 0 and 1")
 
-    #Makes sure basic lands percentage is 0<x<1
+    #Makes sure basic lands percentage is 0<x<1 and is a number
+    try:
+        basic_land_percent = float(basic_land_percent)
+    except:
+        return("Error! Non numeric value detected for basic land percentage")
     if basic_land_percent > 1 or basic_land_percent < 0:
         return("Error! Basic land percentage decimal isnt between 0 and 1")
 
-    #Makes sure basic lands removal percentage is 0<x<1
+    #Makes sure basic lands removal percentage is 0<x<1 and is a number
+    try:
+        basic_land_percent_removal = float(basic_land_percent_removal)
+    except:
+        return("Error! Non numeric value detected for basic land removal percentage decimal")
     if basic_land_percent_removal > 1 or basic_land_percent_removal < 0:
         return("Error! Basic land removal percentage decimal isnt between 0 and 1")
 
@@ -44,20 +86,43 @@ def verifyInformation(normal_rarity_percents, commander_rarity_percents, land_ra
     #Set the deck size
     deck_size = 0
     if deck_mode == "brawl" or deck_mode == "standard":
-        deck_size = 60
+        deck_size = "60"
 
     #Make sure the number of lands is valid
+    try:
+        min_lands = int(round(numberOfLands[0]))
+        max_lands = int(round(numberOfLands[1]))
+    except:
+        return("Error! Non numeric value detected for minimum and/or maximum number of lands")
     if min_lands > max_lands:
         return("Error! Minimum lands must be less than or equal too maximum lands")
-    if max_lands > deck_size:
+    if max_lands > int(deck_size):
         return("Error! Maximum lands must be less than or equal too the maximum deck size")
-
     return deck_size
 #----------------------------------------------------------
+#----------------------------------------------------------
+
+
 
 #----------------------------------------------------------
-#Method for picking a card
 #----------------------------------------------------------
+"""Randomly picks a card
+
+Args:
+    mana_cost (list): A list of each cards mana cost, split by rarities -- if flag = 1, this is the color(s) that a land can produce instead of mana cost
+    name (list): A list of each cards name, split by rarities
+    types (list): A list of each cards type, split by rarities
+    rarityPercents (list): A list of percentages (decimals) for each rarity
+    deckCMC (list): A list of the number of colored and colorless mana symbols
+    deck (list): A list of card names in the deck
+    flag (int): A integer to tell if we are dealing with lands (1) or not (0)
+    artifact_percent (float) A decimal for how often we want to pick an artifact if we randomly select one
+    basic_land_percent (float): A decimal for how often we want to pick a basic land
+
+Returns:
+    list: A list of card names in the deck after the new card has been picked
+    list: A list of the number of colored and colorless mana symbols after the new card has been picked
+"""
 def pick_a_card(manaCost, name, types, rarityPercents, deckCMC, deck, flag, artifact_percent, basic_land_percent):
      
     #For lands, we need to pass in the color of the land as the manaCost
@@ -81,10 +146,9 @@ def pick_a_card(manaCost, name, types, rarityPercents, deckCMC, deck, flag, arti
 
         #If we get a colorless deck, basic lands are islands
         if total == 0:
-            deckCMC[3] = 1
             total = 1
             basic_land_range[3][0] = 0
-            basic_land_range[3][0] = 0
+            basic_land_range[3][1] = 0
 
         #Randomly select a basic land, and since we dont use deckCMC, we can start subtracting from here to reflect lands
         #However, if the deckCMC is 1, dont subtract to allow for more basics to be added
@@ -123,7 +187,7 @@ def pick_a_card(manaCost, name, types, rarityPercents, deckCMC, deck, flag, arti
         randomIndex = randint(0, len(name[mode])-1)
         if ((deck_mode == "brawl" and name[mode][randomIndex] not in deck) or (deck_mode == "standard")):
             if types != []:
-                if types[mode][randomIndex].find("Artifact") != -1 and randint(0, 100) > 100*artifact_percent: #Lowers the chance you get an artifact
+                if types[mode][randomIndex].find("Artifact") != -1 and randint(0, 100) > 100*artifact_percent and sum(deckCMC[:-1]) != 0: #Lowers odds of getting an artifact unless your deck is colorless
                     return deck, deckCMC
             deck.append(name[mode][randomIndex])
 
@@ -156,10 +220,10 @@ def generateDeck(setsToInclude, normal_rarity_percents, commander_rarity_percent
     retCode = verifyInformation(normal_rarity_percents, commander_rarity_percents, land_rarity_percents, artifact_percent, basic_land_percent, basic_land_percent_removal, deck_mode, numberOfLands)
 
     deck_size = 0
-    if type(retCode) == str:
+    try:
+        deck_size = int(retCode)
+    except:
         return retCode
-    else:
-        deck_size = retCode
 
     #Array index 0 = common, 1 = uncommon, 2 = rare, 3 = mythic
     name = [[], [], [], []]
@@ -456,7 +520,7 @@ if __name__ == "__main__":
     possibleColorCombos = ["", "R", "W", "G", "U", "B", "RW", "RG", "RU", "RB", "WG", "WU", "WB", "GU", "GB", "UB", "RGB", "WGU", "BRU", "GWR", "UWB", "URW", "RWB", "BGU", "RUG", "WGB"]
 
     #TODO -- should be a checkbox
-    sideBoard = True
+    sideBoard = False
 
     returned = generateDeck(setsToInclude, normal_rarity_percents, commander_rarity_percents, land_rarity_percents, artifact_percent, basic_land_percent, basic_land_percent_removal, deck_mode, numberOfLands, possibleColorCombos, sideBoard)    
     print(returned)

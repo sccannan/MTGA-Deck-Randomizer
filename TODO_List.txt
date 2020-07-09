@@ -20,3 +20,8 @@ HTML GUI
 	-HTML must run python (https://ourcodeworld.com/articles/read/286/how-to-execute-a-python-script-and-retrieve-output-data-and-errors-in-node-js)
 
 Need to make sure all the cards are in each set
+
+Need to check the following inputs
+	-List of sets (all strings)
+	-possible color combos
+	-side board
