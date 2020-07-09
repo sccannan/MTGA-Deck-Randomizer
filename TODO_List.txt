@@ -14,11 +14,4 @@ Support All MTGA Games Modes
 	-Pauper
 	-Traditional Historic
 
-HTML GUI
-
 Need to make sure all the cards are in each set
-
-Need to check the following inputs
-	-List of sets (all strings)
-	-possible color combos
-	-side board
