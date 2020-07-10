@@ -143,7 +143,7 @@ def verifyInformation(sets, possibleColorCombos, normal_rarity_percents, command
 
     #Make sure the deck mode is supported
     deck_mode = deck_mode.lower().rstrip()
-    possibleGameModes = ["brawl", "standard", "pauper", "artisan", "historic", "singleton"]
+    possibleGameModes = ["brawl", "standard", "pauper", "artisan", "historic", "singleton", "friendly brawl"]
     if deck_mode not in possibleGameModes:
         return("Error!\nUnsupported deck mode! Current options are brawl and standard"), [], []
 
@@ -152,7 +152,7 @@ def verifyInformation(sets, possibleColorCombos, normal_rarity_percents, command
     except:
         return("Error!\nDeck size must me an int"), [], []
 
-    if deck_mode == "brawl":
+    if deck_mode == "brawl" or deck_mode == "friendly brawl":
         if deckSize < 60:
             return("Error!\nBrawl requires at least 60 cards"), [], []
 
@@ -232,9 +232,6 @@ def load_json_sets(setsToInclude, deck_mode):
             jsonIndex = data["cards"]
         except:
             jsonIndex = data["data"]["cards"]
-
-        
-        #print(jsonIndex[0]["legalities"])
 
         #For each card
         for x in jsonIndex:
@@ -532,6 +529,9 @@ def generateDeck(setsToInclude, normal_rarity_percents, commander_rarity_percent
     #Loads the JSONS
     if deck_mode == "singleton":
         normal, commander, land = load_json_sets(setsToInclude, "standard")
+    elif deck_mode == "friendly brawl":
+        normal, commander, land = load_json_sets(setsToInclude, "historic")
+        deck_mode = "brawl"
     else:
         normal, commander, land = load_json_sets(setsToInclude, deck_mode)
 
@@ -748,9 +748,9 @@ if __name__ == "__main__":
     Label(miscFrame, text="Game Mode").grid(row=2)
     artifactPercent = Text(miscFrame, height=1, width=10)
     gmVariable = StringVar(miscFrame)
-    gmVariable.set("Brawl") # default value
-    gameMode = OptionMenu(miscFrame, gmVariable, "artisan", "brawl", "historic", "pauper", "singleton", "standard")
-    gameMode.config(width=8)
+    gmVariable.set("brawl") # default value
+    gameMode = OptionMenu(miscFrame, gmVariable, "artisan", "brawl", "friendly brawl", "historic", "pauper", "singleton", "standard")
+    gameMode.config(width=11)
     artifactPercent.insert(END, ".25")
     artifactPercent.grid(row=0, column=1)
     deck_size = Text(miscFrame, height=1, width=10)
@@ -789,7 +789,7 @@ if __name__ == "__main__":
     T2.pack(side=LEFT)
     S3.config(command=T.yview)
     T2.config(yscrollcommand=S3.set)
-    T2.insert(END, "Sets: Check the sets you want to play with\nDOM = Domanaria\nHA1 = Historic Anthology 1\nHA2 = Historic Anthology 2\nHA3 = Historic Anthology 3\nE02 = Ixalan\nRIX = Rivals of Ixalan\nM19 = Core 2019\nGRN = Guilds of Ravnica\nRNA = Ravnica Allegiance\nWAR = War of the Spark\nM20 = Core 2020\nELD = Throne of Eldraine\nTHB = Theros Beyond Death\nIKO = Ikoria\nM21 = Core 2021\n\nMana Colors: Check the mana colors you want your deck possibly being\nR = Red\nW = White\nG = Green\nU = Blue\nB = Black")
+    T2.insert(END, "Sets: Check the sets you want to play with\nDOM = Domanaria\nHA1 = Historic Anthology 1\nHA2 = Historic Anthology 2\nHA3 = Historic Anthology 3\nE02 = Ixalan\nRIX = Rivals of Ixalan\nM19 = Core 2019\nGRN = Guilds of Ravnica\nRNA = Ravnica Allegiance\nWAR = War of the Spark\nM20 = Core 2020\nELD = Throne of Eldraine\nTHB = Theros Beyond Death\nIKO = Ikoria\nM21 = Core 2021\n\nMana Colors: Check the mana colors you want your deck possibly being\nR = Red\nW = White\nG = Green\nU = Blue\nB = Black\n\nRarities: The odds you want to get a card of a certain rarity. For example, normal common = .25 means there's a 25% chance, for each normal card in your deck, it will be a common\n\nBasic Land Percentage: The odds that for each land, it will be a basic land. This is applied before checking the rarity of each land\n\nBasic Land Removal Percentage: For each color in your deck past the first, this number will get subtracted from Basic Land Percentage so that the more colors in your deck, the more likely you will get non basic lands, which wil help with mana fixing\n\nArtifact Percentage: The odds that you will randomly select an artifact. This is here because artifacts can be run in any deck, so this will limit the amount that can be randomly generated in a deck")
     T2.configure(state='disabled')
 
     def generate_helper():
