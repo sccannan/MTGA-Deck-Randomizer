@@ -604,7 +604,7 @@ if __name__ == "__main__":
     #Root
     root = Tk()
     root.resizable(False, False)
-    root.geometry("950x850")
+    root.geometry("970x870")
     root.title("MTGA Random Deck Generator")
     root.iconphoto(False, PhotoImage(file='icon.png'))
 
@@ -643,10 +643,10 @@ if __name__ == "__main__":
   
     #Normal Cards
     normalCard = Label(root, text="Normal Card Rarities")
-    normalCard.place(x=10, y=280)
+    normalCard.place(x=10, y=290)
     normalFrame = Frame(root)
     normalFrame.pack()
-    normalFrame.place(x=10, y=300)
+    normalFrame.place(x=10, y=310)
     Label(normalFrame, text="Common").grid(row=0)
     Label(normalFrame, text="Uncommon").grid(row=1)
     Label(normalFrame, text="Rare").grid(row=2)
@@ -667,10 +667,10 @@ if __name__ == "__main__":
 
     #Commander Cards
     commanderCard = Label(root, text="Commander Card Rarities")
-    commanderCard.place(x=200, y=280)
+    commanderCard.place(x=200, y=290)
     commanderFrame = Frame(root)
     commanderFrame.pack()
-    commanderFrame.place(x=200, y=300)
+    commanderFrame.place(x=200, y=310)
     Label(commanderFrame, text="Common").grid(row=0)
     Label(commanderFrame, text="Uncommon").grid(row=1)
     Label(commanderFrame, text="Rare").grid(row=2)
@@ -691,10 +691,10 @@ if __name__ == "__main__":
 
     #Land Cards
     landCard = Label(root, text="Land Card Rarities")
-    landCard.place(x=390, y=280)
+    landCard.place(x=390, y=290)
     landFrame = Frame(root)
     landFrame.pack()
-    landFrame.place(x=390, y=300)
+    landFrame.place(x=390, y=310)
     Label(landFrame, text="Common").grid(row=0)
     Label(landFrame, text="Uncommon").grid(row=1)
     Label(landFrame, text="Rare").grid(row=2)
@@ -715,10 +715,10 @@ if __name__ == "__main__":
 
     #Mana/Land Fixing
     landMana = Label(root, text="Lands")
-    landMana.place(x=10, y=400)
+    landMana.place(x=10, y=420)
     landManaFrame = Frame(root)
     landManaFrame.pack()
-    landManaFrame.place(x=10, y=420)
+    landManaFrame.place(x=10, y=440)
     Label(landManaFrame, text="Basic Land Percentage").grid(row=0)
     Label(landManaFrame, text="Basic Land Removal Percentage").grid(row=1)
     Label(landManaFrame, text="Minimum Lands").grid(row=2)
@@ -739,10 +739,10 @@ if __name__ == "__main__":
 
     #Misc
     misc = Label(root, text="Misc")
-    misc.place(x=350, y=400)
+    misc.place(x=350, y=420)
     miscFrame = Frame(root)
     miscFrame.pack()
-    miscFrame.place(x=350, y=420)
+    miscFrame.place(x=350, y=440)
     Label(miscFrame, text="Artifact Percent").grid(row=0)
     Label(miscFrame, text="Deck Size").grid(row=1)
     Label(miscFrame, text="Game Mode").grid(row=2)
@@ -820,9 +820,9 @@ if __name__ == "__main__":
         root.clipboard_clear()
         root.clipboard_append(T.get("1.0",END))
 
-    Button(root, text='Quit', command=root.quit, height = 2, width = 5).place(x=460, y=10)
-    Button(root, text='Generate', command=generate_helper, height = 2, width = 5).place(x=460, y=70)
-    Button(root, text='Copy\nTo\nClipboard', command=copy_to_clipboard, height = 6, width = 5).place(x=540, y=10)
+    Button(root, text='Quit', command=root.quit, height = 2, width = 6).place(x=460, y=10)
+    Button(root, text='Generate', command=generate_helper, height = 2, width = 6).place(x=460, y=70)
+    Button(root, text='Copy\nTo\nClipboard', command=copy_to_clipboard, height = 6, width = 7).place(x=540, y=10)
 
     root.mainloop()
         
