@@ -6,7 +6,7 @@ This application is a way for a user to randomly generate a Magic the Gathering 
 
 ![Alt text](gui.png?raw=true "Title")
 
-##Supported Game Modes
+## Supported Game Modes
 * Historic and Traditional Historic
 	* 60+ cards, historic legal
 * Standard and Traditional Standard
@@ -21,6 +21,14 @@ This application is a way for a user to randomly generate a Magic the Gathering 
 	* 60-250 cards, historic legal, commons or uncommons only
 * Pauper 
 	* 60+ cards, standard legal, commons only
+
+## Usage
+### Installation
+* This program requires python3, which a guide for installation can be downloaded [HERE](https://wiki.python.org/moin/BeginnersGuide/Download)
+* This program requires tkinter, which a guide for installation can be downloaded [HERE](https://tkdocs.com/tutorial/install.html)
+
+### Running the program
+* To run the program in Windows, simply double click on "randomizer.py". For Linux/MacOS, in the terminal navigate to the directory where "randomizer.py" is and do "python3 randomizer.py"
 
 ## Key
 * Sets: Check the sets you want to play with
@@ -60,5 +68,5 @@ To generate HTML documentation for this program issue the command: pydoc3 -w ran
 * Make Unit Tests?
 * Supports All MTGA Games Modes
 	* Direct Game
-        * Limited
+	* Limited
 * Need to make sure all the cards are in each set
