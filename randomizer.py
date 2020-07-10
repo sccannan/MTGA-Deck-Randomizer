@@ -141,17 +141,13 @@ def verifyInformation(sets, possibleColorCombos, normal_rarity_percents, command
     if basic_land_percent_removal > 1 or basic_land_percent_removal < 0:
         return("Error!\nBasic land removal percentage decimal isnt between 0 and 1"), [], []
 
-    #Make sure the deck mode is supported
-    deck_mode = deck_mode.lower().rstrip()
-    possibleGameModes = ["brawl", "standard", "pauper", "artisan", "historic", "singleton", "friendly brawl"]
-    if deck_mode not in possibleGameModes:
-        return("Error!\nUnsupported deck mode! Current options are brawl and standard"), [], []
-
+    #Make sure the deck size is a number
     try:
         deckSize = int(deckSize)
     except:
         return("Error!\nDeck size must me an int"), [], []
 
+    #Make sure the deck mode is supported
     if deck_mode == "brawl" or deck_mode == "friendly brawl":
         if deckSize < 60:
             return("Error!\nBrawl requires at least 60 cards"), [], []
@@ -178,9 +174,16 @@ def verifyInformation(sets, possibleColorCombos, normal_rarity_percents, command
         if deckSize < 60:
             return("Error!\nSingleton requires at least 60 cards"), [], []
 
-    elif deck_mode == "historic":
+    elif deck_mode == "historic" or deck_mode == "direct game":
         if deckSize < 60:
             return("Error!\nHistoric requires at least 60 cards"), [], []
+        deck_mode = "historic"
+
+    elif deck_mode == "limited":
+        if deckSize < 40:
+            return("Error!\nHistoric requires at least 40 cards"), [], []
+
+    else:return("Error!\nUnsupported deck mode!"), [], []
         
     #Make sure the number of lands is valid
     try:
@@ -383,7 +386,7 @@ def pick_a_card(card_list, rarityPercents, deckCMC, deck, artifact_percent, basi
     #Pick the card
     else:
         randomIndex = randint(0, len(card_list[mode])-1)
-        if ((deck_mode == "brawl" and card_list[mode][randomIndex][0] not in deck) or (deck_mode == "standard") or (deck_mode == "historic") or (deck_mode == "singleton" and card_list[mode][randomIndex][0] not in deck)):
+        if ((deck_mode == "brawl" and card_list[mode][randomIndex][0] not in deck) or (deck_mode == "standard" and deck.count(card_list[mode][randomIndex][0]) < 4) or (deck_mode == "historic" and deck.count(card_list[mode][randomIndex][0]) < 4) or (deck_mode == "singleton" and card_list[mode][randomIndex][0] not in deck) or (deck_mode == "limited")):
             if card_list[mode][randomIndex][3] != -1:
                 #Lowers odds of getting an artifact unless your deck is colorless
                 if card_list[mode][randomIndex][3].find("Artifact") != -1 and randint(0, 100) > 100*artifact_percent and sum(deckCMC[:-1]) != 0:
@@ -514,13 +517,12 @@ def generateDeck(setsToInclude, normal_rarity_percents, commander_rarity_percent
     """
 
     #Checking the information
-    retCode, setsToInclude, possibleColorCombos = verifyInformation(setsToInclude, possibleColorCombos, normal_rarity_percents, commander_rarity_percents, land_rarity_percents, artifact_percent, basic_land_percent, basic_land_percent_removal, deck_mode, numberOfLands, deckSize)
+    deck_mode, setsToInclude, possibleColorCombos = verifyInformation(setsToInclude, possibleColorCombos, normal_rarity_percents, commander_rarity_percents, land_rarity_percents, artifact_percent, basic_land_percent, basic_land_percent_removal, deck_mode, numberOfLands, deckSize)
 
     #Casting the information
     if setsToInclude == [] and possibleColorCombos == []:
-        return retCode
+        return deck_mode
     deck_size = int(deckSize)
-    deck_mode = retCode.lower().rstrip()
     artifact_percent = float(artifact_percent)
     basic_land_percent = float(basic_land_percent)
     numberOfLands[0] = int(round(float(numberOfLands[0])))
@@ -532,6 +534,8 @@ def generateDeck(setsToInclude, normal_rarity_percents, commander_rarity_percent
     elif deck_mode == "friendly brawl":
         normal, commander, land = load_json_sets(setsToInclude, "historic")
         deck_mode = "brawl"
+    elif deck_mode == "limited":
+        normal, commander, land = load_json_sets(setsToInclude, "historic")
     else:
         normal, commander, land = load_json_sets(setsToInclude, deck_mode)
 
@@ -540,11 +544,11 @@ def generateDeck(setsToInclude, normal_rarity_percents, commander_rarity_percent
     deck = []
 
     #If standard, pick a color combo
-    if deck_mode == "standard" or deck_mode == "historic":
+    if deck_mode == "standard" or deck_mode == "historic" or deck_mode == "limited" or deck_mode == "singleton":
         colorCombo = possibleColorCombos[randint(0, len(possibleColorCombos)-1)]
 
     #If commander, pick a commander that fits a color combo
-    else:
+    elif deck_mode == "brawl":
         attempts = 0
         while len(deck) < 1:
             deck, deckCMC, colorCombo = pick_a_card(commander, commander_rarity_percents, deckCMC, deck, artifact_percent, basic_land_percent, 1, deck_mode)
@@ -554,6 +558,9 @@ def generateDeck(setsToInclude, normal_rarity_percents, commander_rarity_percent
                 deckCMC = [0, 0, 0, 0, 0, 0]
             if attempts > 1000:
                 return("Warning! After 1000 attempts, a commander could not be found. Please change your rarity values to allow for more cards to be chosen")
+
+    else:
+        return("Error!")
 
     #The more colors in your deck, the less likely you are to get basics
     if len(colorCombo) > 1:
@@ -749,7 +756,7 @@ if __name__ == "__main__":
     artifactPercent = Text(miscFrame, height=1, width=10)
     gmVariable = StringVar(miscFrame)
     gmVariable.set("brawl") # default value
-    gameMode = OptionMenu(miscFrame, gmVariable, "artisan", "brawl", "friendly brawl", "historic", "pauper", "singleton", "standard")
+    gameMode = OptionMenu(miscFrame, gmVariable, "artisan", "brawl", "direct game", "friendly brawl", "historic", "limited", "pauper", "singleton", "standard")
     gameMode.config(width=11)
     artifactPercent.insert(END, ".25")
     artifactPercent.grid(row=0, column=1)

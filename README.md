@@ -4,13 +4,13 @@ A random deck maker for MTGA
 ## What is this?
 This application is a way for a user to randomly generate a Magic the Gathering Arena. Based on the settings from the GUI, a random deck will be generated. All cards have equal % of being chosen, regardless if how many sets they have been in (the odds of getting the card "Opt" is the same as any other card, even though it's in multiple sets) Additionally, split mana cards are only put into decks with BOTH of the colors for simiplicities sake.
 
-![Alt text](gui.png?raw=true "Title")
+![Alt text](gui.png?raw=true "GUI")
 
 ## Supported Game Modes
 * Historic and Traditional Historic
-	* 60+ cards, historic legal
+	* 60+ cards, historic legal, 4 similar card max
 * Standard and Traditional Standard
-	* 60+ cards, standard legal
+	* 60+ cards, standard legal, 4 similar card max
 * Brawl
 	* 59 unique cards, 1 unique commander, standard legal
 * Friendly Brawl
@@ -18,9 +18,13 @@ This application is a way for a user to randomly generate a Magic the Gathering 
 * Singleton
 	* 60 unique cards, standard legal
 * Artisan
-	* 60-250 cards, historic legal, commons or uncommons only
+	* 60-250 cards, historic legal, commons or uncommons only, 4 similar card max
 * Pauper 
-	* 60+ cards, standard legal, commons only
+	* 60+ cards, standard legal, commons only, 4 similar card max
+* Limited
+	* 40+ cards
+* Direct Game
+	* 60+ cards, historic legal, 4 similar card max
 
 ## Usage
 ### Installation
@@ -66,7 +70,5 @@ To generate HTML documentation for this program issue the command: pydoc3 -w ran
 
 ## TODO
 * Make Unit Tests?
-* Support all MTGA Games Modes
-	* Direct Game
-	* Limited
 * Need to make sure all the cards are in each set
+* Improve GUI?
