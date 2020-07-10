@@ -819,7 +819,7 @@ if __name__ == "__main__":
         """
         root.clipboard_clear()
         root.clipboard_append(T.get("1.0",END))
-
+        
     Button(root, text='Quit', command=root.quit, height = 2, width = 6).place(x=460, y=10)
     Button(root, text='Generate', command=generate_helper, height = 2, width = 6).place(x=460, y=70)
     Button(root, text='Copy\nTo\nClipboard', command=copy_to_clipboard, height = 6, width = 7).place(x=540, y=10)
