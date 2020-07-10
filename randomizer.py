@@ -7,7 +7,13 @@ from tkinter import *
 #---------------------------------------------------------
 #---------------------------------------------------------
 class Checkbar(Frame):
+    """A class to group a bunch of checkboxes together.
+
+    Attributes:
+        vars: pointers to all the checkboxes
+    """
     def __init__(self, parent=None, picks=[], toSelect=0):
+        """Inits the checkbar with len(picks) boxes"""
         Frame.__init__(self, parent)
         self.vars = []
         for pick in picks:
@@ -17,7 +23,9 @@ class Checkbar(Frame):
                 chk.select()
             chk.pack(side=LEFT)
             self.vars.append(var)
+
     def state(self):
+        """Returns a list of 0/1s depending if a box is checked"""
         return map((lambda var: var.get()), self.vars)
 #---------------------------------------------------------
 #---------------------------------------------------------
@@ -667,9 +675,11 @@ if __name__ == "__main__":
     Label(miscFrame, text="Artifact Percent").grid(row=0)
     Label(miscFrame, text="Game Mode").grid(row=1)
     artifactPercent = Text(miscFrame, height=1, width=10)
-    gameMode = Text(miscFrame, height=1, width=10)
+    gmVariable = StringVar(miscFrame)
+    gmVariable.set("Brawl") # default value
+    gameMode = OptionMenu(miscFrame, gmVariable, "Brawl", "Standard")
+    gameMode.config(width=8)
     artifactPercent.insert(END, ".25")
-    gameMode.insert(END, "Brawl")
     artifactPercent.grid(row=0, column=1)
     gameMode.grid(row=1, column=1)
     sideBoardPointer = IntVar()
@@ -715,7 +725,7 @@ if __name__ == "__main__":
         artifact_percent = artifactPercent.get("1.0",END)
         basic_land_percent = landPercent.get("1.0",END)
         basic_land_percent_removal = landRPercent.get("1.0",END)
-        deck_mode = gameMode.get("1.0",END)
+        deck_mode = gmVariable.get()
         numberOfLands = [minLand.get("1.0",END), maxLand.get("1.0",END)]
         possibleColorCombos = list(noColor.state()) + list(monoColor.state()) + list(dualColor.state()) + list(triColor.state()) + list(quadColor.state()) + list(allColor.state())
         sideBoard = sideBoardPointer.get()
