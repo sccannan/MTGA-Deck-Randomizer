@@ -66,7 +66,7 @@ To generate HTML documentation for this program issue the command: pydoc3 -w ran
 
 ## TODO
 * Make Unit Tests?
-* Supports All MTGA Games Modes
+* Support all MTGA Games Modes
 	* Direct Game
 	* Limited
 * Need to make sure all the cards are in each set
