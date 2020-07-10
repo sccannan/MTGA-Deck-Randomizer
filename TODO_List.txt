@@ -15,3 +15,5 @@ Support All MTGA Games Modes
 	-Traditional Historic
 
 Need to make sure all the cards are in each set
+
+Right click textbox to copy all
