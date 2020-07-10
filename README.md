@@ -1,7 +1,7 @@
 # MTGA Deck Randomizer
 A random deck maker for MTGA
 
-##What is this?
+## What is this?
 This application is a way for a user to randomly generate a Magic the Gathering Arena. Based on the settings from the GUI, a random deck will be generated. All cards have equal % of being chosen, regardless if how many sets they have been in (the odds of getting the card "Opt" is the same as any other card, even though it's in multiple sets) Additionally, split mana cards are only put into decks with BOTH of the colors for simiplicities sake.
 
 ![Alt text](gui.png?raw=true "Title")
@@ -22,7 +22,7 @@ This application is a way for a user to randomly generate a Magic the Gathering 
 * Pauper 
 	* 60+ cards, standard legal, commons only
 
-##Key
+## Key
 * Sets: Check the sets you want to play with
 	* DOM = Domanaria
 	* HA1 = Historic Anthology 1
@@ -50,13 +50,13 @@ This application is a way for a user to randomly generate a Magic the Gathering 
 * Basic Land Removal Percentage: For each color in your deck past the first, this number will get subtracted from Basic Land Percentage so that the more colors in your deck, the more likely you will get non basic lands, which wil help with mana fixing
 * Artifact Percentage: The odds that you will randomly select an artifact. This is here because artifacts can be run in any deck, so this will limit the amount that can be randomly generated in a deck
 
-##Link for JSONS
+## Link for JSONS
 All credit for the JSON files that list all the cards go to [MTGJSON](https://mtgjson.com/)
 
-##Pydocs
+## Pydocs
 To generate HTML documentation for this program issue the command: pydoc3 -w randomizer
 
-##TODO
+## TODO
 * Make Unit Tests?
 * Supports All MTGA Games Modes
 	* Direct Game
