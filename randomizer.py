@@ -22,12 +22,12 @@ def verifyInformation(sets, possibleColorCombos, normal_rarity_percents, command
     Args:
         sets (list): A list of 0/1 values for including certain sets
         possibleColorCombos (list): A list of 0/1 values for including certain colorCombos
-        normal_rarity_percents (list): A list of percentages (decimals) for each rarity (for normal cards - not lands or commanders)
-        commander_rarity_percents (list): A list of percentages (decimals) for each rarity for commanders
-        land_rarity_percents (list): A list of percentages (decimals) for each rarity for lands
-        artifact_percents (float): A decimal for how often we want to pick an artifact if we randomly select one
-        basic_land_percent (float): A decimal for how often we want to pick a basic land
-        basic_land_removal_percent (float): A decimal for modifying basic_land_percent
+        normal_rarity_percents (list): A list of percentages (int) for each rarity (for normal cards - not lands or commanders)
+        commander_rarity_percents (list): A list of percentages (int) for each rarity for commanders
+        land_rarity_percents (list): A list of percentages (int) for each rarity for lands
+        artifact_percents (int): An int for how often we want to pick an artifact if we randomly select one
+        basic_land_percent (int): An int for how often we want to pick a basic land
+        basic_land_percent_removal (int): A decimal for modifying basic_land_percent
         deck_mode (str): A string representing what type of format we want to use
         numberOfLands (list): A list containing the minimum number of lands you want in a deck, and the maximum number of lands you want in a deck
         deckSize (int): The deck size
@@ -60,51 +60,51 @@ def verifyInformation(sets, possibleColorCombos, normal_rarity_percents, command
         try:
             normal_rarity_percents[x] = float(normal_rarity_percents[x])
         except:
-            return("Error!\nNon numeric value detected for normal rarity decimals"), [], []
+            return("Error!\nNon numeric value detected for normal rarity"), [], []
         if normal_rarity_percents[x] < 0:
-            return("Error!\nNegative value detected for normal rarity decimals"), [], []
+            return("Error!\nNegative value detected for normal rarity"), [], []
         try:
             commander_rarity_percents[x] = float(commander_rarity_percents[x])
         except:
-            return("Error!\nNon numeric value detected for commander rarity decimals"), [], []
+            return("Error!\nNon numeric value detected for commander rarity"), [], []
         if commander_rarity_percents[x] < 0:
-            return("Error!\nNegative value detected for commander rarity decimals"), [], []
+            return("Error!\nNegative value detected for commander rarity"), [], []
         try:
             land_rarity_percents[x] = float(land_rarity_percents[x])
         except:
-            return("Error!\nNon numeric value detected for land rarity decimals"), [], []
+            return("Error!\nNon numeric value detected for land rarity"), [], []
         if land_rarity_percents[x] < 0:
-            return("Error!\nNegative value detected for land rarity decimals"), [], []
-    if sum(normal_rarity_percents) != 1:
-        return("Error!\nNormal rarity decimals dont equal 1"), [], []
-    if sum(commander_rarity_percents) != 1:
-        return("Error!\nCommander rarity decimals dont equal 1"), [], []
-    if sum(land_rarity_percents) != 1:
-        return("Error!\nLand rarity decimals dont equal 1"), [], []
+            return("Error!\nNegative value detected for land rarity"), [], []
+    if sum(normal_rarity_percents) != 100:
+        return("Error!\nNormal rarity decimals dont equal 100"), [], []
+    if sum(commander_rarity_percents) != 100:
+        return("Error!\nCommander rarity decimals dont equal 100"), [], []
+    if sum(land_rarity_percents) != 100:
+        return("Error!\nLand rarity decimals dont equal 100"), [], []
 
-    #Makes sure artifact percentage is 0<x<1 and is a number
+    #Makes sure artifact percentage is 0<x<100 and is a number
     try:
         artifact_percent = float(artifact_percent)
     except:
         return("Error!\nNon numeric value detected for artifact percentage"), [], []
-    if artifact_percent > 1 or artifact_percent < 0:
-        return("Error!\nArtifact percentage decimal isnt between 0 and 1"), [], []
+    if artifact_percent > 100 or artifact_percent < 0:
+        return("Error!\nArtifact percentage decimal isnt between 0 and 100"), [], []
 
-    #Makes sure basic lands percentage is 0<x<1 and is a number
+    #Makes sure basic lands percentage is 0<x<100 and is a number
     try:
         basic_land_percent = float(basic_land_percent)
     except:
         return("Error!\nNon numeric value detected for basic land percentage"), [], []
-    if basic_land_percent > 1 or basic_land_percent < 0:
-        return("Error!\nBasic land percentage decimal isnt between 0 and 1"), [], []
+    if basic_land_percent > 100 or basic_land_percent < 0:
+        return("Error!\nBasic land percentage decimal isnt between 0 and 100"), [], []
 
-    #Makes sure basic lands removal percentage is 0<x<1 and is a number
+    #Makes sure basic lands removal percentage is 0<x<100 and is a number
     try:
         basic_land_percent_removal = float(basic_land_percent_removal)
     except:
         return("Error!\nNon numeric value detected for basic land removal percentage decimal"), [], []
-    if basic_land_percent_removal > 1 or basic_land_percent_removal < 0:
-        return("Error!\nBasic land removal percentage decimal isnt between 0 and 1"), [], []
+    if basic_land_percent_removal > 100 or basic_land_percent_removal < 0:
+        return("Error!\nBasic land removal percentage decimal isnt between 0 and 100"), [], []
 
     #Make sure the deck size is a number
     try:
@@ -512,12 +512,12 @@ def generateDeck(setsToInclude, normal_rarity_percents, commander_rarity_percent
 
     Args:
         setsToInclude (list): A list of 0/1 values for including certain sets
-        normal_rarity_percents (list): A list of percentages (decimals) for each rarity (for normal cards - not lands or commanders)
-        commander_rarity_percents (list): A list of percentages (decimals) for each rarity for commanders
-        land_rarity_percents (list): A list of percentages (decimals) for each rarity for lands
-        artifact_percents (float): A decimal for how often we want to pick an artifact if we randomly select one
-        basic_land_percent (float): A decimal for how often we want to pick a basic land
-        basic_land_removal_percent (float): A decimal for modifying basic_land_percent
+        normal_rarity_percents (list): A list of percentages (ints) for each rarity (for normal cards - not lands or commanders)
+        commander_rarity_percents (list): A list of percentages (ints) for each rarity for commanders
+        land_rarity_percents (list): A list of percentages (ints) for each rarity for lands
+        artifact_percents (int): An int for how often we want to pick an artifact if we randomly select one
+        basic_land_percent (int): An int for how often we want to pick a basic land
+        basic_land_percent_removal (int): An int for modifying basic_land_percent
         deck_mode (str): A string representing what type of format we want to use
         numberOfLands (list): A list containing the minimum number of lands you want in a deck, and the maximum number of lands you want in a deck
         possibleColorCombos (list): A list of 0/1 values for including certain colorCombos
@@ -534,11 +534,16 @@ def generateDeck(setsToInclude, normal_rarity_percents, commander_rarity_percent
     #Casting the information
     if setsToInclude == [] and possibleColorCombos == []:
         return deck_mode
-    deck_size = int(deckSize)
-    artifact_percent = float(artifact_percent)
-    basic_land_percent = float(basic_land_percent)
+    for x in range(4):
+        normal_rarity_percents[x] = normal_rarity_percents[x]/100
+        commander_rarity_percents[x] = commander_rarity_percents[x]/100
+        land_rarity_percents[x] = land_rarity_percents[x]/100
+    artifact_percent = float(artifact_percent)/100
+    basic_land_percent = float(basic_land_percent)/100
+    basic_land_percent_removal = float(basic_land_percent_removal)/100
     numberOfLands[0] = int(round(float(numberOfLands[0])))
     numberOfLands[1] = int(round(float(numberOfLands[1]))) 
+    deck_size = int(deckSize)
 
     #Loads the JSONS
     normal = []
@@ -642,6 +647,7 @@ if __name__ == "__main__":
                 var = IntVar()
                 chk = Checkbutton(self, text='All', command=lambda: check_bar_toggle(self), variable=var)
                 chk.pack(side=LEFT)
+                chk.select()
                 self.vars.append(var)
             for pick in picks:
                 var = IntVar()
@@ -716,40 +722,20 @@ if __name__ == "__main__":
         triColor.all_on()
         quadColor.all_off()
         allColor.all_off()
-        normalC.delete('1.0', END)
-        normalC.insert(END, ".15")
-        normalUC.delete('1.0', END)
-        normalUC.insert(END, ".75")
-        normalR.delete('1.0', END)
-        normalR.insert(END, ".10")
-        normalM.delete('1.0', END)
-        normalM.insert(END, ".00")
-        commanderC.delete('1.0', END)
-        commanderC.insert(END, ".00")
-        commanderUC.delete('1.0', END)
-        commanderUC.insert(END, ".25")
-        commanderR.delete('1.0', END)
-        commanderR.insert(END, ".50")
-        commanderM.delete('1.0', END)
-        commanderM.insert(END, ".25")
-        landC.delete('1.0', END)
-        landC.insert(END, ".50")
-        landUC.delete('1.0', END)
-        landUC.insert(END, ".50")
-        landR.delete('1.0', END)
-        landR.insert(END, ".00")
-        landM.delete('1.0', END)
-        landM.insert(END, ".00")
-        landPercent.delete('1.0', END)
-        landPercent.insert(END, ".90")
-        landRPercent.delete('1.0', END)
-        landRPercent.insert(END, ".10")
-        minLand.delete('1.0', END)
-        minLand.insert(END, "23")
-        maxLand.delete('1.0', END)
-        maxLand.insert(END, "27")
+        for x in range(len(normalList)):
+            normalList[x].delete('1.0', END)
+            normalList[x].insert(END, normalListVariable[x])
+        for x in range(len(commanderList)):
+            commanderList[x].delete('1.0', END)
+            commanderList[x].insert(END, commanderListVariable[x])
+        for x in range(len(landList)):
+            landList[x].delete('1.0', END)
+            landList[x].insert(END, landListVariable[x])
+        for x in range(len(landsList)):
+            landsList[x].delete('1.0', END)
+            landsList[x].insert(END, landsListVariable[x])
         artifactPercent.delete('1.0', END)
-        artifactPercent.insert(END, ".25")
+        artifactPercent.insert(END, "25")
         deck_size.delete('1.0', END)
         deck_size.insert(END, "60")
         T.configure(state='normal')
@@ -792,7 +778,7 @@ if __name__ == "__main__":
     dualColor.pack()
     triColor = Checkbar(manaFrame, ["RGB", "WGU", "BRU", "GWR", "UWB", "URW", "RWB", "BGU", "RUG", "WGB"])
     triColor.pack()
-    quadColor = Checkbar(manaFrame, ["RGBU", "RGBW", "RGWU", "WBUG", "WRBU"], toSelect=1)
+    quadColor = Checkbar(manaFrame, ["RGBU", "RGBW", "RGWU", "WBUG", "WRBU"], toSelect=1, allBar=False)
     quadColor.pack()
     allColor = Checkbar(manaFrame, ["WRBUG"], toSelect=1, allBar=False)
     allColor.pack()
@@ -809,89 +795,65 @@ if __name__ == "__main__":
     Label(normalFrame, text="Rare").grid(row=2)
     Label(normalFrame, text="Mythic").grid(row=3)
     normalC = Text(normalFrame, height=1, width=10)
-    normalC.bind("<Tab>", focus_next_widget)
-    normalC.bind("<Return>", focus_next_widget)
     normalUC = Text(normalFrame, height=1, width=10)
-    normalUC.bind("<Tab>", focus_next_widget)
-    normalUC.bind("<Return>", focus_next_widget)
     normalR = Text(normalFrame, height=1, width=10)
-    normalR.bind("<Tab>", focus_next_widget)
-    normalR.bind("<Return>", focus_next_widget)
     normalM = Text(normalFrame, height=1, width=10)
-    normalM.bind("<Tab>", focus_next_widget)
-    normalM.bind("<Return>", focus_next_widget)
-    normalC.insert(END, ".15")
-    normalUC.insert(END, ".75")
-    normalR.insert(END, ".10")
-    normalM.insert(END, ".00")
-    normalC.grid(row=0, column=1)
-    normalUC.grid(row=1, column=1)
-    normalR.grid(row=2, column=1)
-    normalM.grid(row=3, column=1)
+    normalList = [normalC, normalUC, normalR, normalM]
+    normalListVariable = ["15", "75", "10", "0"]
+    for x in range(len(normalList)):
+        normalList[x].bind("<Tab>", focus_next_widget)
+        normalList[x].bind("<Return>", focus_next_widget)
+        normalList[x].insert(END, normalListVariable[x])
+        normalList[x].grid(row=x, column=1)
+        Label(normalFrame, text="%").grid(row=x, column=2)
     normalFrame.config(relief=GROOVE, bd=2)
 
     #Commander Cards
     commanderCard = Label(root, text="Commander Card Rarities")
-    commanderCard.place(x=200, y=290)
+    commanderCard.place(x=210, y=290)
     commanderFrame = Frame(root)
     commanderFrame.pack()
-    commanderFrame.place(x=200, y=310)
+    commanderFrame.place(x=210, y=310)
     Label(commanderFrame, text="Common").grid(row=0)
     Label(commanderFrame, text="Uncommon").grid(row=1)
     Label(commanderFrame, text="Rare").grid(row=2)
     Label(commanderFrame, text="Mythic").grid(row=3)
     commanderC = Text(commanderFrame, height=1, width=10)
-    commanderC.bind("<Tab>", focus_next_widget)
-    commanderC.bind("<Return>", focus_next_widget)
     commanderUC = Text(commanderFrame, height=1, width=10)
-    commanderUC.bind("<Tab>", focus_next_widget)
-    commanderUC.bind("<Return>", focus_next_widget)
     commanderR = Text(commanderFrame, height=1, width=10)
-    commanderR.bind("<Tab>", focus_next_widget)
-    commanderR.bind("<Return>", focus_next_widget)
     commanderM = Text(commanderFrame, height=1, width=10)
-    commanderM.bind("<Tab>", focus_next_widget)
-    commanderM.bind("<Return>", focus_next_widget)
-    commanderC.insert(END, ".00")
-    commanderUC.insert(END, ".25")
-    commanderR.insert(END, ".50")
-    commanderM.insert(END, ".25")
-    commanderC.grid(row=0, column=1)
-    commanderUC.grid(row=1, column=1)
-    commanderR.grid(row=2, column=1)
-    commanderM.grid(row=3, column=1)
+    commanderList = [commanderC, commanderUC, commanderR, commanderM]
+    commanderListVariable = ["0", "25", "50", "25"]
+    for x in range(len(commanderList)):
+        commanderList[x].bind("<Tab>", focus_next_widget)
+        commanderList[x].bind("<Return>", focus_next_widget)
+        commanderList[x].insert(END, commanderListVariable[x])
+        commanderList[x].grid(row=x, column=1)
+        Label(commanderFrame, text="%").grid(row=x, column=2)
     commanderFrame.config(relief=GROOVE, bd=2)
 
     #Land Cards
     landCard = Label(root, text="Land Card Rarities")
-    landCard.place(x=390, y=290)
+    landCard.place(x=410, y=290)
     landFrame = Frame(root)
     landFrame.pack()
-    landFrame.place(x=390, y=310)
+    landFrame.place(x=410, y=310)
     Label(landFrame, text="Common").grid(row=0)
     Label(landFrame, text="Uncommon").grid(row=1)
     Label(landFrame, text="Rare").grid(row=2)
     Label(landFrame, text="Mythic").grid(row=3)
     landC = Text(landFrame, height=1, width=10)
-    landC.bind("<Tab>", focus_next_widget)
-    landC.bind("<Return>", focus_next_widget)
     landUC = Text(landFrame, height=1, width=10)
-    landUC.bind("<Tab>", focus_next_widget)
-    landUC.bind("<Return>", focus_next_widget)
     landR = Text(landFrame, height=1, width=10)
-    landR.bind("<Tab>", focus_next_widget)
-    landR.bind("<Return>", focus_next_widget)
     landM = Text(landFrame, height=1, width=10)
-    landM.bind("<Tab>", focus_next_widget)
-    landM.bind("<Return>", focus_next_widget)
-    landC.insert(END, ".50")
-    landUC.insert(END, ".50")
-    landR.insert(END, ".00")
-    landM.insert(END, ".00")
-    landC.grid(row=0, column=1)
-    landUC.grid(row=1, column=1)
-    landR.grid(row=2, column=1)
-    landM.grid(row=3, column=1)
+    landList = [landC, landUC, landR, landM]
+    landListVariable = ["50", "50", "0", "0"]
+    for x in range(len(landList)):
+        landList[x].bind("<Tab>", focus_next_widget)
+        landList[x].bind("<Return>", focus_next_widget)
+        landList[x].insert(END, landListVariable[x])
+        landList[x].grid(row=x, column=1)
+        Label(landFrame, text="%").grid(row=x, column=2)
     landFrame.config(relief=GROOVE, bd=2)
 
     #Mana/Land Fixing
@@ -905,25 +867,18 @@ if __name__ == "__main__":
     Label(landManaFrame, text="Minimum Lands").grid(row=2)
     Label(landManaFrame, text="Maxmimum").grid(row=3)
     landPercent = Text(landManaFrame, height=1, width=10)
-    landPercent.bind("<Tab>", focus_next_widget)
-    landPercent.bind("<Return>", focus_next_widget)
     landRPercent = Text(landManaFrame, height=1, width=10)
-    landRPercent.bind("<Tab>", focus_next_widget)
-    landRPercent.bind("<Return>", focus_next_widget)
     minLand = Text(landManaFrame, height=1, width=10)
-    minLand.bind("<Tab>", focus_next_widget)
-    minLand.bind("<Return>", focus_next_widget)
     maxLand = Text(landManaFrame, height=1, width=10)
-    maxLand.bind("<Tab>", focus_next_widget)
-    maxLand.bind("<Return>", focus_next_widget)
-    landPercent.insert(END, ".90")
-    landRPercent.insert(END, ".10")
-    minLand.insert(END, "23")
-    maxLand.insert(END, "27")
-    landPercent.grid(row=0, column=1)
-    landRPercent.grid(row=1, column=1)
-    minLand.grid(row=2, column=1)
-    maxLand.grid(row=3, column=1)
+    landsList = [landPercent, landRPercent, minLand, maxLand]
+    landsListVariable = ["90", "10", "23", "27"]
+    for x in range(len(landsList)):
+        landsList[x].bind("<Tab>", focus_next_widget)
+        landsList[x].bind("<Return>", focus_next_widget)
+        landsList[x].insert(END, landsListVariable[x])
+        landsList[x].grid(row=x, column=1)
+        if x == 0 or x == 1:
+            Label(landManaFrame, text="%").grid(row=x, column=2)
     landManaFrame.config(relief=GROOVE, bd=2)
 
     #Misc
@@ -935,16 +890,17 @@ if __name__ == "__main__":
     Label(miscFrame, text="Artifact Percent").grid(row=0)
     Label(miscFrame, text="Deck Size").grid(row=1)
     Label(miscFrame, text="Game Mode").grid(row=2)
-    artifactPercent = Text(miscFrame, height=1, width=10)
+    artifactPercent = Text(miscFrame, height=1, width=16)
     artifactPercent.bind("<Tab>", focus_next_widget)
     artifactPercent.bind("<Return>", focus_next_widget)
     gmVariable = StringVar(miscFrame)
     gmVariable.set("brawl") # default value
     gameMode = OptionMenu(miscFrame, gmVariable, "artisan", "brawl", "direct game", "friendly brawl", "historic", "limited", "pauper", "singleton", "standard")
     gameMode.config(width=11)
-    artifactPercent.insert(END, ".25")
+    artifactPercent.insert(END, "25")
     artifactPercent.grid(row=0, column=1)
-    deck_size = Text(miscFrame, height=1, width=10)
+    Label(miscFrame, text="%").grid(row=0, column=2)
+    deck_size = Text(miscFrame, height=1, width=16)
     deck_size.bind("<Tab>", focus_next_widget)
     deck_size.bind("<Return>", focus_next_widget)
     deck_size.insert(END, "60")
@@ -982,7 +938,7 @@ if __name__ == "__main__":
     T2.pack(side=LEFT)
     S3.config(command=T2.yview)
     T2.config(yscrollcommand=S3.set)
-    T2.insert(END, "Sets: Check the sets you want to play with\nDOM = Domanaria\nHA1 = Historic Anthology 1\nHA2 = Historic Anthology 2\nHA3 = Historic Anthology 3\nXLN = Ixalan\nRIX = Rivals of Ixalan\nM19 = Core 2019\nGRN = Guilds of Ravnica\nRNA = Ravnica Allegiance\nWAR = War of the Spark\nM20 = Core 2020\nELD = Throne of Eldraine\nTHB = Theros Beyond Death\nIKO = Ikoria\nM21 = Core 2021\n\nMana Colors: Check the mana colors you want your deck possibly being. If you have \"R\", \"W\", and \"RW\", theres a 33% chance your deck is only Red, a 33% chance your deck is only White, and a 33% chance your deck is Red and White\nR = Red\nW = White\nG = Green\nU = Blue\nB = Black\n\nRarities: The odds you want to get a card of a certain rarity. For example, normal common = .25 means there's a 25% chance, for each normal card in your deck, it will be a common\n\nBasic Land Percentage: The odds that for each land, it will be a basic land. This is applied before checking the rarity of each land\n\nBasic Land Removal Percentage: For each color in your deck past the first, this number will get subtracted from Basic Land Percentage so that the more colors in your deck, the more likely you will get non basic lands, which wil help with mana fixing\n\nArtifact Percentage: The odds that you will randomly select an artifact. This is here because artifacts can be run in any deck, so this will limit the amount that can be randomly generated in a deck\n\nHistoric and Traditional Historic - 60+ cards, historic legal, 4 similar card max\n\nStandard and Traditional Standard - 60+ cards, standard legal, 4 similar card max\n\nBrawl - 59 unique cards, 1 unique commander, standard legal\n\nFriendly Brawl - 59 unique cards, 1 unique commander, historic legal\n\nSingleton - 60 unique cards, standard legal\n\nArtisan - 60-250 cards, historic legal, commons or uncommons only, 4 similar card max\n\nPauper - 60+ cards, standard legal, commons only, 4 similar card max\n\nLimited - 40+ cards\n\nDirect Game - 60+ cards, historic legal, 4 similar card max")
+    T2.insert(END, "Sets: Check the sets you want to play with\nDOM = Dominaria\nHA1 = Historic Anthology 1\nHA2 = Historic Anthology 2\nHA3 = Historic Anthology 3\nXLN = Ixalan\nRIX = Rivals of Ixalan\nM19 = Core 2019\nGRN = Guilds of Ravnica\nRNA = Ravnica Allegiance\nWAR = War of the Spark\nM20 = Core 2020\nELD = Throne of Eldraine\nTHB = Theros Beyond Death\nIKO = Ikoria\nM21 = Core 2021\n\nMana Colors: Check the mana colors you want your deck possibly being. If you have \"R\", \"W\", and \"RW\", theres a 33% chance your deck is only Red, a 33% chance your deck is only White, and a 33% chance your deck is Red and White\nR = Red\nW = White\nG = Green\nU = Blue\nB = Black\n\nRarities: The odds you want to get a card of a certain rarity. For example, normal common = .25 means there's a 25% chance, for each normal card in your deck, it will be a common\n\nBasic Land Percentage: The odds that for each land, it will be a basic land. This is applied before checking the rarity of each land\n\nBasic Land Removal Percentage: For each color in your deck past the first, this number will get subtracted from Basic Land Percentage so that the more colors in your deck, the more likely you will get non basic lands, which wil help with mana fixing\n\nArtifact Percentage: The odds that you will randomly select an artifact. This is here because artifacts can be run in any deck, so this will limit the amount that can be randomly generated in a deck\n\nHistoric and Traditional Historic - 60+ cards, historic legal, 4 similar card max\n\nStandard and Traditional Standard - 60+ cards, standard legal, 4 similar card max\n\nBrawl - 59 unique cards, 1 unique commander, standard legal\n\nFriendly Brawl - 59 unique cards, 1 unique commander, historic legal\n\nSingleton - 60 unique cards, standard legal\n\nArtisan - 60-250 cards, historic legal, commons or uncommons only, 4 similar card max\n\nPauper - 60+ cards, standard legal, commons only, 4 similar card max\n\nLimited - 40+ cards\n\nDirect Game - 60+ cards, historic legal, 4 similar card max")
     T2.configure(state='disabled')
     Button(root, text='Quit', command=root.quit, height = 2, width = 6).place(x=580, y=70)
     Button(root, text='Generate', command=generate_helper, height = 2, width = 6).place(x=500, y=10)

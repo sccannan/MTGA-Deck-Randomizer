@@ -35,7 +35,7 @@ This application is a way for a user to randomly generate a Magic the Gathering 
 
 ## Key
 * Sets: Check the sets you want to play with
-	* DOM = Domanaria
+	* DOM = Dominaria
 	* HA1 = Historic Anthology 1
 	* HA2 = Historic Anthology 2
 	* HA3 = Historic Anthology 3
@@ -70,3 +70,4 @@ To generate HTML documentation for this program issue the command: pydoc3 -w ran
 ##TODO
 * Double check code (clean up, check for redundancies, etc)
 * Testing, testing, testing (catching inputs, making sure all cards are present, etc)
+* Check spelling
