@@ -4,7 +4,7 @@ A random deck maker for MTGA
 ## What is this?
 This application is a way for a user to randomly generate a Magic the Gathering Arena deck. Based on the settings from the GUI, a random deck will be generated. All cards have equal chance of being chosen, regardless if how many sets they have been in (the odds of getting the card "Opt" is the same as any other card, even though it's in multiple sets) Additionally, split mana cards are only put into decks with BOTH of the colors for simiplicities sake.
 
-![Example GUI](gui.png?raw=true "GUI")
+![Example GUI](GUI.png?raw=true "GUI")
 
 ## Supported Game Modes
 * Historic and Traditional Historic
@@ -50,7 +50,7 @@ This application is a way for a user to randomly generate a Magic the Gathering 
 	* THB = Theros Beyond Death
 	* IKO = Ikoria
 	* M21 = Core 2021
-* Mana Colors: Check the mana colors you want your deck possibly being
+* Mana Colors: Check the mana colors you want your deck possibly being. If you have "R", "W", and "RW", theres a 33% chance your deck is only Red, a 33% chance your deck is only White, and a 33% chance your deck is Red and White
 	* R = Red
 	* W = White
 	* G = Green
