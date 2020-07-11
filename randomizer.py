@@ -64,15 +64,6 @@ def verifyInformation(sets, possibleColorCombos, normal_rarity_percents, command
         list: The possibleColorCombos
     """
 
-    #The sets you want to draw cards from
-    setsToInclude = []
-    possibleSets = ["DOM", "HA1", "HA2", "HA3", "E02", "RIX", "M19", "GRN", "RNA", "WAR", "M20", "ELD", "THB", "IKO", "M21"]
-    for x in range(len(sets)):
-        if sets[x] == 1:
-            setsToInclude.append(possibleSets[x])
-        elif sets[x] == 0:
-            pass
-
     #The possible color combinations
     ccToInclude = []
     possibleCC = ["", "R", "W", "G", "U", "B", "RW", "RG", "RU", "RB", "WG", "WU", "WB", "GU", "GB", "UB", "RGB", "WGU", "BRU", "GWR", "UWB", "URW", "RWB", "BGU", "RUG", "WGB", "RGBU", "RGBW", "RGWU", "WBUG", "WRBU", "WRBUG"]
@@ -145,16 +136,26 @@ def verifyInformation(sets, possibleColorCombos, normal_rarity_percents, command
     try:
         deckSize = int(deckSize)
     except:
-        return("Error!\nDeck size must me an int"), [], []
+        return("Error!\nNon numeric value detected for deck size"), [], []
+
+    possibleSets = ["DOM", "HA1", "HA2", "HA3", "XLN", "RIX", "M19", "GRN", "RNA", "WAR", "M20", "ELD", "THB", "IKO", "M21"]
 
     #Make sure the deck mode is supported
-    if deck_mode == "brawl" or deck_mode == "friendly brawl":
+    if deck_mode == "brawl":
+        if deckSize != 60:
+            return("Error!\nBrawl requires at 60 cards"), [], []
+        possibleSets = possibleSets[7:]
+        sets = sets[7:]
+
+    elif deck_mode == "friendly brawl":
         if deckSize != 60:
             return("Error!\nBrawl requires at 60 cards"), [], []
 
     elif deck_mode == "standard":
         if deckSize < 60:
             return("Error!\nStandard requires at least 60 cards"), [], []
+        possibleSets = possibleSets[7:]
+        sets = sets[7:]
 
     elif deck_mode == "pauper":
         if normal_rarity_percents[0] != 1 or commander_rarity_percents[0] != 1 or land_rarity_percents[0] != 1:
@@ -169,22 +170,39 @@ def verifyInformation(sets, possibleColorCombos, normal_rarity_percents, command
         if deckSize < 60 or deckSize > 250:
             return("Error!\nArtisan requires at least 60 cards and maximum 250 cards"), [], []
         deck_mode = "standard"
+        possibleSets = possibleSets[7:]
+        sets = sets[7:]
 
     elif deck_mode == "singleton":
         if deckSize < 60:
             return("Error!\nSingleton requires at least 60 cards"), [], []
+        possibleSets = possibleSets[7:]
+        sets = sets[7:]
 
-    elif deck_mode == "historic" or deck_mode == "direct game":
+    elif deck_mode == "historic":
         if deckSize < 60:
             return("Error!\nHistoric requires at least 60 cards"), [], []
         deck_mode = "historic"
+
+    elif deck_mode == "direct game":
+        if deckSize < 60:
+            return("Error!\nHistoric requires at least 60 cards"), [], []
 
     elif deck_mode == "limited":
         if deckSize < 40:
             return("Error!\nHistoric requires at least 40 cards"), [], []
 
-    else:return("Error!\nUnsupported deck mode!"), [], []
+    else:
+        return("Error!\nUnsupported deck mode!"), [], []
         
+    #The sets you want to draw cards from
+    setsToInclude = []
+    for x in range(len(sets)):
+        if sets[x] == 1:
+            setsToInclude.append(possibleSets[x])
+        elif sets[x] == 0:
+            pass
+
     #Make sure the number of lands is valid
     try:
         min_lands = int(round(float(numberOfLands[0])))
@@ -195,6 +213,10 @@ def verifyInformation(sets, possibleColorCombos, normal_rarity_percents, command
         return("Error!\nMinimum lands must be less than or equal too maximum lands"), [], []
     if max_lands > int(deckSize):
         return("Error!\nMaximum lands must be less than or equal too the maximum deck size"), [], []
+    if min_lands < 0:
+        return("Error!\nMinimum lands must be greater than 0"), [], []
+    if max_lands < 0:
+        return("Error!\nMaximum lands must be greater than 0"), [], []
     return deck_mode, setsToInclude, ccToInclude
 #----------------------------------------------------------
 #----------------------------------------------------------
@@ -250,16 +272,21 @@ def load_json_sets(setsToInclude, deck_mode):
                 cardName = x["names"][0] + " // " + x["names"][1]
             else:
                 cardName = x["name"]
-
+                
             #If that card is legal in the format we want and unique
             try:
                 legalResult = x["legalities"][deck_mode]
-                manaCost = x["manaCost"]
             except:
                 legalResult = "Not Legal"
 
-            if (legalResult == "Legal" and cardName not in all_card_names):
+            #See if the card has a manacost
+            try:
+                manaCost = x["manaCost"]
+            except:
+                continue
 
+            if ((legalResult == "Legal" or deck_mode == "all") and cardName not in all_card_names):
+                    
                 #Track all card names
                 all_card_names.append(cardName)
 
@@ -280,7 +307,7 @@ def load_json_sets(setsToInclude, deck_mode):
                     normal[magic_number].append([cardName, colorIdentity, x["manaCost"].replace("/", ""), x["types"][0]])
 
                     #If the card is a legendary creature or planeswalker, mark it as a commander
-                    if ((x["type"].find("Legendary Creature") != -1) or (x["type"].find("Legendary Planeswalker") != -1)):
+                    if ((x["type"].find("Legendary") != -1) and ((x["type"].find("Creature") != -1) or (x["type"].find("Planeswalker") != -1))):
                         commander[magic_number].append([cardName, colorIdentity, x["manaCost"].replace("{", "").replace("}", ""), x["types"][0]])
 
     return normal, commander, land
@@ -532,10 +559,13 @@ def generateDeck(setsToInclude, normal_rarity_percents, commander_rarity_percent
     if deck_mode == "singleton":
         normal, commander, land = load_json_sets(setsToInclude, "standard")
     elif deck_mode == "friendly brawl":
-        normal, commander, land = load_json_sets(setsToInclude, "historic")
+        normal, commander, land = load_json_sets(setsToInclude, "all")
         deck_mode = "brawl"
+    elif deck_mode == "direct game":
+        normal, commander, land = load_json_sets(setsToInclude, "all")
+        deck_mode = "historic"
     elif deck_mode == "limited":
-        normal, commander, land = load_json_sets(setsToInclude, "historic")
+        normal, commander, land = load_json_sets(setsToInclude, "all")
     else:
         normal, commander, land = load_json_sets(setsToInclude, deck_mode)
 
@@ -618,7 +648,7 @@ if __name__ == "__main__":
     #Sets
     setLabel = Label(root, text="Historic Sets")
     setLabel.place(x=10, y=10)
-    setCheckBar = Checkbar(root, ["DOM","HA1","HA2","HA3","E02","RIX","M19"])
+    setCheckBar = Checkbar(root, ["DOM","HA1","HA2","HA3","XLN","RIX","M19"])
     setCheckBar.place(x=10, y=30)
     setCheckBar.config(relief=GROOVE, bd=2)
 
@@ -788,7 +818,7 @@ if __name__ == "__main__":
     #Key
     keyFrame = Frame(root)
     keyFrame.pack(side=BOTTOM)
-    keyLabel = Label(keyFrame, text="Key")
+    keyLabel = Label(keyFrame, text="Key/Guide")
     keyLabel.pack(side=TOP)
     S3 = Scrollbar(keyFrame)
     S3.pack(side=RIGHT, fill=Y)
@@ -796,7 +826,7 @@ if __name__ == "__main__":
     T2.pack(side=LEFT)
     S3.config(command=T2.yview)
     T2.config(yscrollcommand=S3.set)
-    T2.insert(END, "Sets: Check the sets you want to play with\nDOM = Domanaria\nHA1 = Historic Anthology 1\nHA2 = Historic Anthology 2\nHA3 = Historic Anthology 3\nE02 = Ixalan\nRIX = Rivals of Ixalan\nM19 = Core 2019\nGRN = Guilds of Ravnica\nRNA = Ravnica Allegiance\nWAR = War of the Spark\nM20 = Core 2020\nELD = Throne of Eldraine\nTHB = Theros Beyond Death\nIKO = Ikoria\nM21 = Core 2021\n\nMana Colors: Check the mana colors you want your deck possibly being\nR = Red\nW = White\nG = Green\nU = Blue\nB = Black\n\nRarities: The odds you want to get a card of a certain rarity. For example, normal common = .25 means there's a 25% chance, for each normal card in your deck, it will be a common\n\nBasic Land Percentage: The odds that for each land, it will be a basic land. This is applied before checking the rarity of each land\n\nBasic Land Removal Percentage: For each color in your deck past the first, this number will get subtracted from Basic Land Percentage so that the more colors in your deck, the more likely you will get non basic lands, which wil help with mana fixing\n\nArtifact Percentage: The odds that you will randomly select an artifact. This is here because artifacts can be run in any deck, so this will limit the amount that can be randomly generated in a deck")
+    T2.insert(END, "Sets: Check the sets you want to play with\nDOM = Domanaria\nHA1 = Historic Anthology 1\nHA2 = Historic Anthology 2\nHA3 = Historic Anthology 3\nXLN = Ixalan\nRIX = Rivals of Ixalan\nM19 = Core 2019\nGRN = Guilds of Ravnica\nRNA = Ravnica Allegiance\nWAR = War of the Spark\nM20 = Core 2020\nELD = Throne of Eldraine\nTHB = Theros Beyond Death\nIKO = Ikoria\nM21 = Core 2021\n\nMana Colors: Check the mana colors you want your deck possibly being\nR = Red\nW = White\nG = Green\nU = Blue\nB = Black\n\nRarities: The odds you want to get a card of a certain rarity. For example, normal common = .25 means there's a 25% chance, for each normal card in your deck, it will be a common\n\nBasic Land Percentage: The odds that for each land, it will be a basic land. This is applied before checking the rarity of each land\n\nBasic Land Removal Percentage: For each color in your deck past the first, this number will get subtracted from Basic Land Percentage so that the more colors in your deck, the more likely you will get non basic lands, which wil help with mana fixing\n\nArtifact Percentage: The odds that you will randomly select an artifact. This is here because artifacts can be run in any deck, so this will limit the amount that can be randomly generated in a deck\n\nHistoric and Traditional Historic - 60+ cards, historic legal, 4 similar card max\n\nStandard and Traditional Standard - 60+ cards, standard legal, 4 similar card max\n\nBrawl - 59 unique cards, 1 unique commander, standard legal\n\nFriendly Brawl - 59 unique cards, 1 unique commander, historic legal\n\nSingleton - 60 unique cards, standard legal\n\nArtisan - 60-250 cards, historic legal, commons or uncommons only, 4 similar card max\n\nPauper - 60+ cards, standard legal, commons only, 4 similar card max\n\nLimited - 40+ cards\nDirect Game - 60+ cards, historic legal, 4 similar card max")
     T2.configure(state='disabled')
 
     def generate_helper():

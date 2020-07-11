@@ -69,6 +69,4 @@ All credit for the JSON files that list all the cards go to [MTGJSON](https://mt
 To generate HTML documentation for this program issue the command: pydoc3 -w randomizer
 
 ## TODO
-* Make Unit Tests?
-* Need to make sure all the cards are in each set
-* Improve GUI?
+* Improve GUI
