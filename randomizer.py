@@ -149,8 +149,8 @@ def verifyInformation(sets, possibleColorCombos, normal_rarity_percents, command
 
     #Make sure the deck mode is supported
     if deck_mode == "brawl" or deck_mode == "friendly brawl":
-        if deckSize < 60:
-            return("Error!\nBrawl requires at least 60 cards"), [], []
+        if deckSize != 60:
+            return("Error!\nBrawl requires at 60 cards"), [], []
 
     elif deck_mode == "standard":
         if deckSize < 60:
@@ -159,8 +159,8 @@ def verifyInformation(sets, possibleColorCombos, normal_rarity_percents, command
     elif deck_mode == "pauper":
         if normal_rarity_percents[0] != 1 or commander_rarity_percents[0] != 1 or land_rarity_percents[0] != 1:
             return("Error!\nPauper only supports commons"), [], []
-        if deckSize != 60:
-            return("Error!\nStandard requires 60 cards"), [], []
+        if deckSize < 60:
+            return("Error!\nPauper requires at least 60 cards"), [], []
         deck_mode = "historic"
 
     elif deck_mode == "artisan":
@@ -794,7 +794,7 @@ if __name__ == "__main__":
     S3.pack(side=RIGHT, fill=Y)
     T2 = Text(keyFrame, height=17, width=100, wrap=WORD)
     T2.pack(side=LEFT)
-    S3.config(command=T.yview)
+    S3.config(command=T2.yview)
     T2.config(yscrollcommand=S3.set)
     T2.insert(END, "Sets: Check the sets you want to play with\nDOM = Domanaria\nHA1 = Historic Anthology 1\nHA2 = Historic Anthology 2\nHA3 = Historic Anthology 3\nE02 = Ixalan\nRIX = Rivals of Ixalan\nM19 = Core 2019\nGRN = Guilds of Ravnica\nRNA = Ravnica Allegiance\nWAR = War of the Spark\nM20 = Core 2020\nELD = Throne of Eldraine\nTHB = Theros Beyond Death\nIKO = Ikoria\nM21 = Core 2021\n\nMana Colors: Check the mana colors you want your deck possibly being\nR = Red\nW = White\nG = Green\nU = Blue\nB = Black\n\nRarities: The odds you want to get a card of a certain rarity. For example, normal common = .25 means there's a 25% chance, for each normal card in your deck, it will be a common\n\nBasic Land Percentage: The odds that for each land, it will be a basic land. This is applied before checking the rarity of each land\n\nBasic Land Removal Percentage: For each color in your deck past the first, this number will get subtracted from Basic Land Percentage so that the more colors in your deck, the more likely you will get non basic lands, which wil help with mana fixing\n\nArtifact Percentage: The odds that you will randomly select an artifact. This is here because artifacts can be run in any deck, so this will limit the amount that can be randomly generated in a deck")
     T2.configure(state='disabled')
