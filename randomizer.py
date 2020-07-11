@@ -67,6 +67,8 @@ def verifyInformation(sets, possibleColorCombos, normal_rarity_percents, command
     #The possible color combinations
     ccToInclude = []
     possibleCC = ["", "R", "W", "G", "U", "B", "RW", "GR", "RU", "BR", "GW", "UW", "BW", "GU", "BG", "BU", "BGR", "GUW", "BRU", "GRW", "BUW", "RUW", "BRW", "BGU", "GRU", "BGW", "BGRU", "BGRW", "GRUW", "BGUW", "BRUW", "BGRUW"]
+    if sum(possibleColorCombos) == 0:
+        return("Error!\nAt least 1 mana color box needs to be checked"), [], []
     for x in range(len(possibleColorCombos)):
         if possibleColorCombos[x] == 1:
             ccToInclude.append(possibleCC[x])
@@ -195,6 +197,8 @@ def verifyInformation(sets, possibleColorCombos, normal_rarity_percents, command
         
     #The sets you want to draw cards from
     setsToInclude = []
+    if sum(sets) == 0:
+        return("Error!\nAt least 1 set box needs to be checked that is part of your game format"), [], []
     for x in range(len(sets)):
         if sets[x] == 1:
             setsToInclude.append(possibleSets[x])
@@ -645,6 +649,41 @@ if __name__ == "__main__":
 
     #All of the TKinter GUI stuff is here
 
+    def generate_helper():
+        """
+        A helper method to call deck generation
+        """
+        setsToInclude = list(setCheckBar.state()) + list(setCheckBar2.state())
+        normal_rarity_percents = [normalC.get("1.0",END), normalUC.get("1.0",END), normalR.get("1.0",END), normalM.get("1.0",END)]
+        commander_rarity_percents = [commanderC.get("1.0",END), commanderUC.get("1.0",END), commanderR.get("1.0",END), commanderM.get("1.0",END)]
+        land_rarity_percents = [landC.get("1.0",END), landUC.get("1.0",END), landR.get("1.0",END), landM.get("1.0",END)]
+        artifact_percent = artifactPercent.get("1.0",END)
+        basic_land_percent = landPercent.get("1.0",END)
+        basic_land_percent_removal = landRPercent.get("1.0",END)
+        deck_mode = gmVariable.get()
+        numberOfLands = [minLand.get("1.0",END), maxLand.get("1.0",END)]
+        possibleColorCombos = list(noColor.state()) + list(monoColor.state()) + list(dualColor.state()) + list(triColor.state()) + list(quadColor.state()) + list(allColor.state())
+        sideBoard = sideBoardPointer.get()
+        deckSize = deck_size.get("1.0",END)
+        T.configure(state='normal')
+        T.delete('1.0', END)
+        T.insert(END, generateDeck(setsToInclude, normal_rarity_percents, commander_rarity_percents, land_rarity_percents, artifact_percent, basic_land_percent, basic_land_percent_removal, deck_mode, numberOfLands, possibleColorCombos, sideBoard, deckSize))
+        T.configure(state='disabled')
+
+    def copy_to_clipboard():
+        """
+        Copys the textbox to the clipboard
+        """
+        root.clipboard_clear()
+        root.clipboard_append(T.get("1.0",END))
+
+    def focus_next_widget(event):
+        """
+        Goes to the next box
+        """
+        event.widget.tk_focusNext().focus()
+        return("break")
+
     #Root
     root = Tk()
     root.resizable(False, False)
@@ -695,9 +734,17 @@ if __name__ == "__main__":
     Label(normalFrame, text="Rare").grid(row=2)
     Label(normalFrame, text="Mythic").grid(row=3)
     normalC = Text(normalFrame, height=1, width=10)
+    normalC.bind("<Tab>", focus_next_widget)
+    normalC.bind("<Return>", focus_next_widget)
     normalUC = Text(normalFrame, height=1, width=10)
+    normalUC.bind("<Tab>", focus_next_widget)
+    normalUC.bind("<Return>", focus_next_widget)
     normalR = Text(normalFrame, height=1, width=10)
+    normalR.bind("<Tab>", focus_next_widget)
+    normalR.bind("<Return>", focus_next_widget)
     normalM = Text(normalFrame, height=1, width=10)
+    normalM.bind("<Tab>", focus_next_widget)
+    normalM.bind("<Return>", focus_next_widget)
     normalC.insert(END, ".15")
     normalUC.insert(END, ".75")
     normalR.insert(END, ".10")
@@ -719,9 +766,17 @@ if __name__ == "__main__":
     Label(commanderFrame, text="Rare").grid(row=2)
     Label(commanderFrame, text="Mythic").grid(row=3)
     commanderC = Text(commanderFrame, height=1, width=10)
+    commanderC.bind("<Tab>", focus_next_widget)
+    commanderC.bind("<Return>", focus_next_widget)
     commanderUC = Text(commanderFrame, height=1, width=10)
+    commanderUC.bind("<Tab>", focus_next_widget)
+    commanderUC.bind("<Return>", focus_next_widget)
     commanderR = Text(commanderFrame, height=1, width=10)
+    commanderR.bind("<Tab>", focus_next_widget)
+    commanderR.bind("<Return>", focus_next_widget)
     commanderM = Text(commanderFrame, height=1, width=10)
+    commanderM.bind("<Tab>", focus_next_widget)
+    commanderM.bind("<Return>", focus_next_widget)
     commanderC.insert(END, ".00")
     commanderUC.insert(END, ".25")
     commanderR.insert(END, ".50")
@@ -743,9 +798,17 @@ if __name__ == "__main__":
     Label(landFrame, text="Rare").grid(row=2)
     Label(landFrame, text="Mythic").grid(row=3)
     landC = Text(landFrame, height=1, width=10)
+    landC.bind("<Tab>", focus_next_widget)
+    landC.bind("<Return>", focus_next_widget)
     landUC = Text(landFrame, height=1, width=10)
+    landUC.bind("<Tab>", focus_next_widget)
+    landUC.bind("<Return>", focus_next_widget)
     landR = Text(landFrame, height=1, width=10)
+    landR.bind("<Tab>", focus_next_widget)
+    landR.bind("<Return>", focus_next_widget)
     landM = Text(landFrame, height=1, width=10)
+    landM.bind("<Tab>", focus_next_widget)
+    landM.bind("<Return>", focus_next_widget)
     landC.insert(END, ".50")
     landUC.insert(END, ".50")
     landR.insert(END, ".00")
@@ -767,9 +830,17 @@ if __name__ == "__main__":
     Label(landManaFrame, text="Minimum Lands").grid(row=2)
     Label(landManaFrame, text="Maxmimum").grid(row=3)
     landPercent = Text(landManaFrame, height=1, width=10)
+    landPercent.bind("<Tab>", focus_next_widget)
+    landPercent.bind("<Return>", focus_next_widget)
     landRPercent = Text(landManaFrame, height=1, width=10)
+    landRPercent.bind("<Tab>", focus_next_widget)
+    landRPercent.bind("<Return>", focus_next_widget)
     minLand = Text(landManaFrame, height=1, width=10)
+    minLand.bind("<Tab>", focus_next_widget)
+    minLand.bind("<Return>", focus_next_widget)
     maxLand = Text(landManaFrame, height=1, width=10)
+    maxLand.bind("<Tab>", focus_next_widget)
+    maxLand.bind("<Return>", focus_next_widget)
     landPercent.insert(END, ".90")
     landRPercent.insert(END, ".10")
     minLand.insert(END, "23")
@@ -790,6 +861,8 @@ if __name__ == "__main__":
     Label(miscFrame, text="Deck Size").grid(row=1)
     Label(miscFrame, text="Game Mode").grid(row=2)
     artifactPercent = Text(miscFrame, height=1, width=10)
+    artifactPercent.bind("<Tab>", focus_next_widget)
+    artifactPercent.bind("<Return>", focus_next_widget)
     gmVariable = StringVar(miscFrame)
     gmVariable.set("brawl") # default value
     gameMode = OptionMenu(miscFrame, gmVariable, "artisan", "brawl", "direct game", "friendly brawl", "historic", "limited", "pauper", "singleton", "standard")
@@ -797,6 +870,8 @@ if __name__ == "__main__":
     artifactPercent.insert(END, ".25")
     artifactPercent.grid(row=0, column=1)
     deck_size = Text(miscFrame, height=1, width=10)
+    deck_size.bind("<Tab>", focus_next_widget)
+    deck_size.bind("<Return>", focus_next_widget)
     deck_size.insert(END, "60")
     deck_size.grid(row=1, column=1)
     gameMode.grid(row=2, column=1)
@@ -832,41 +907,11 @@ if __name__ == "__main__":
     T2.pack(side=LEFT)
     S3.config(command=T2.yview)
     T2.config(yscrollcommand=S3.set)
-    T2.insert(END, "Sets: Check the sets you want to play with\nDOM = Domanaria\nHA1 = Historic Anthology 1\nHA2 = Historic Anthology 2\nHA3 = Historic Anthology 3\nXLN = Ixalan\nRIX = Rivals of Ixalan\nM19 = Core 2019\nGRN = Guilds of Ravnica\nRNA = Ravnica Allegiance\nWAR = War of the Spark\nM20 = Core 2020\nELD = Throne of Eldraine\nTHB = Theros Beyond Death\nIKO = Ikoria\nM21 = Core 2021\n\nMana Colors: Check the mana colors you want your deck possibly being. If you have \"R\", \"W\", and \"RW\", theres a 33% chance your deck is only Red, a 33% chance your deck is only White, and a 33% chance your deck is Red and White\nR = Red\nW = White\nG = Green\nU = Blue\nB = Black\n\nRarities: The odds you want to get a card of a certain rarity. For example, normal common = .25 means there's a 25% chance, for each normal card in your deck, it will be a common\n\nBasic Land Percentage: The odds that for each land, it will be a basic land. This is applied before checking the rarity of each land\n\nBasic Land Removal Percentage: For each color in your deck past the first, this number will get subtracted from Basic Land Percentage so that the more colors in your deck, the more likely you will get non basic lands, which wil help with mana fixing\n\nArtifact Percentage: The odds that you will randomly select an artifact. This is here because artifacts can be run in any deck, so this will limit the amount that can be randomly generated in a deck\n\nHistoric and Traditional Historic - 60+ cards, historic legal, 4 similar card max\n\nStandard and Traditional Standard - 60+ cards, standard legal, 4 similar card max\n\nBrawl - 59 unique cards, 1 unique commander, standard legal\n\nFriendly Brawl - 59 unique cards, 1 unique commander, historic legal\n\nSingleton - 60 unique cards, standard legal\n\nArtisan - 60-250 cards, historic legal, commons or uncommons only, 4 similar card max\n\nPauper - 60+ cards, standard legal, commons only, 4 similar card max\n\nLimited - 40+ cards\nDirect Game - 60+ cards, historic legal, 4 similar card max")
+    T2.insert(END, "Sets: Check the sets you want to play with\nDOM = Domanaria\nHA1 = Historic Anthology 1\nHA2 = Historic Anthology 2\nHA3 = Historic Anthology 3\nXLN = Ixalan\nRIX = Rivals of Ixalan\nM19 = Core 2019\nGRN = Guilds of Ravnica\nRNA = Ravnica Allegiance\nWAR = War of the Spark\nM20 = Core 2020\nELD = Throne of Eldraine\nTHB = Theros Beyond Death\nIKO = Ikoria\nM21 = Core 2021\n\nMana Colors: Check the mana colors you want your deck possibly being. If you have \"R\", \"W\", and \"RW\", theres a 33% chance your deck is only Red, a 33% chance your deck is only White, and a 33% chance your deck is Red and White\nR = Red\nW = White\nG = Green\nU = Blue\nB = Black\n\nRarities: The odds you want to get a card of a certain rarity. For example, normal common = .25 means there's a 25% chance, for each normal card in your deck, it will be a common\n\nBasic Land Percentage: The odds that for each land, it will be a basic land. This is applied before checking the rarity of each land\n\nBasic Land Removal Percentage: For each color in your deck past the first, this number will get subtracted from Basic Land Percentage so that the more colors in your deck, the more likely you will get non basic lands, which wil help with mana fixing\n\nArtifact Percentage: The odds that you will randomly select an artifact. This is here because artifacts can be run in any deck, so this will limit the amount that can be randomly generated in a deck\n\nHistoric and Traditional Historic - 60+ cards, historic legal, 4 similar card max\n\nStandard and Traditional Standard - 60+ cards, standard legal, 4 similar card max\n\nBrawl - 59 unique cards, 1 unique commander, standard legal\n\nFriendly Brawl - 59 unique cards, 1 unique commander, historic legal\n\nSingleton - 60 unique cards, standard legal\n\nArtisan - 60-250 cards, historic legal, commons or uncommons only, 4 similar card max\n\nPauper - 60+ cards, standard legal, commons only, 4 similar card max\n\nLimited - 40+ cards\n\nDirect Game - 60+ cards, historic legal, 4 similar card max")
     T2.configure(state='disabled')
-
-    def generate_helper():
-        """
-        A helper method to call deck generation
-        """
-        setsToInclude = list(setCheckBar.state()) + list(setCheckBar2.state())
-        normal_rarity_percents = [normalC.get("1.0",END), normalUC.get("1.0",END), normalR.get("1.0",END), normalM.get("1.0",END)]
-        commander_rarity_percents = [commanderC.get("1.0",END), commanderUC.get("1.0",END), commanderR.get("1.0",END), commanderM.get("1.0",END)]
-        land_rarity_percents = [landC.get("1.0",END), landUC.get("1.0",END), landR.get("1.0",END), landM.get("1.0",END)]
-        artifact_percent = artifactPercent.get("1.0",END)
-        basic_land_percent = landPercent.get("1.0",END)
-        basic_land_percent_removal = landRPercent.get("1.0",END)
-        deck_mode = gmVariable.get()
-        numberOfLands = [minLand.get("1.0",END), maxLand.get("1.0",END)]
-        possibleColorCombos = list(noColor.state()) + list(monoColor.state()) + list(dualColor.state()) + list(triColor.state()) + list(quadColor.state()) + list(allColor.state())
-        sideBoard = sideBoardPointer.get()
-        deckSize = deck_size.get("1.0",END)
-        T.configure(state='normal')
-        T.delete('1.0', END)
-        T.insert(END, generateDeck(setsToInclude, normal_rarity_percents, commander_rarity_percents, land_rarity_percents, artifact_percent, basic_land_percent, basic_land_percent_removal, deck_mode, numberOfLands, possibleColorCombos, sideBoard, deckSize))
-        T.configure(state='disabled')
-
-    def copy_to_clipboard():
-        """
-        Copys the textbox to the clipboard
-        """
-        root.clipboard_clear()
-        root.clipboard_append(T.get("1.0",END))
-        
     Button(root, text='Quit', command=root.quit, height = 2, width = 6).place(x=460, y=10)
     Button(root, text='Generate', command=generate_helper, height = 2, width = 6).place(x=460, y=70)
     Button(root, text='Copy\nTo\nClipboard', command=copy_to_clipboard, height = 6, width = 7).place(x=540, y=10)
-
     root.mainloop()
         
 #----------------------------------------------------------

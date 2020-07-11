@@ -70,5 +70,3 @@ To generate HTML documentation for this program issue the command: pydoc3 -w ran
 ##TODO
 * Clear button for each block
 * Reset button for entire thing (brings everything back to default)
-* At least one mana color box and one set needs to be selected (catch that in verify info)
-* Enter/Tab button in a text field goes to new line, need to keep it on one line
