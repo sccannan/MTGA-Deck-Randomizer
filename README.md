@@ -2,9 +2,9 @@
 A random deck maker for MTGA
 
 ## What is this?
-This application is a way for a user to randomly generate a Magic the Gathering Arena. Based on the settings from the GUI, a random deck will be generated. All cards have equal % of being chosen, regardless if how many sets they have been in (the odds of getting the card "Opt" is the same as any other card, even though it's in multiple sets) Additionally, split mana cards are only put into decks with BOTH of the colors for simiplicities sake.
+This application is a way for a user to randomly generate a Magic the Gathering Arena deck. Based on the settings from the GUI, a random deck will be generated. All cards have equal chance of being chosen, regardless if how many sets they have been in (the odds of getting the card "Opt" is the same as any other card, even though it's in multiple sets) Additionally, split mana cards are only put into decks with BOTH of the colors for simiplicities sake.
 
-![Alt text](gui.png?raw=true "GUI")
+![Example GUI](gui.png?raw=true "GUI")
 
 ## Supported Game Modes
 * Historic and Traditional Historic
@@ -39,7 +39,7 @@ This application is a way for a user to randomly generate a Magic the Gathering 
 	* HA1 = Historic Anthology 1
 	* HA2 = Historic Anthology 2
 	* HA3 = Historic Anthology 3
-	* E02 = Ixalan
+	* XLN = Ixalan
 	* RIX = Rivals of Ixalan
 	* M19 = Core 2019
 	* GRN = Guilds of Ravnica
@@ -56,13 +56,13 @@ This application is a way for a user to randomly generate a Magic the Gathering 
 	* G = Green
 	* U = Blue
 	* B = Black
-* Rarities: The odds you want to get a card of a certain rarity. For example, normal common = .25 means there's a 25% chance, for each normal card in your deck, it will be a common
+* Rarities: The odds you want to get a card of a certain rarity. For example, normal common = .25 means there's a 25% chance, for each normal card in your deck, it will be a common. Normal cards are all non land cards, commanders are all legendary creatures/planeswalkers, and lands are all non basic land cards.
 * Basic Land Percentage: The odds that for each land, it will be a basic land. This is applied before checking the rarity of each land
-* Basic Land Removal Percentage: For each color in your deck past the first, this number will get subtracted from Basic Land Percentage so that the more colors in your deck, the more likely you will get non basic lands, which wil help with mana fixing
+* Basic Land Removal Percentage: For each color in your deck past the first, this number will get subtracted from Basic Land Percentage so that the more colors in your deck, the more likely you will get non basic lands, which will help with mana fixing
 * Artifact Percentage: The odds that you will randomly select an artifact. This is here because artifacts can be run in any deck, so this will limit the amount that can be randomly generated in a deck
 
 ## Link for JSONS
-All credit for the JSON files that list all the cards go to [MTGJSON](https://mtgjson.com/)
+All credit for the JSON files that list all the cards goes to [MTGJSON](https://mtgjson.com/)
 
 ## Pydocs
 To generate HTML documentation for this program issue the command: pydoc3 -w randomizer
