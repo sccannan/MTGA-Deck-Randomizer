@@ -16,32 +16,6 @@ from tkinter import *
 
 #---------------------------------------------------------
 #---------------------------------------------------------
-class Checkbar(Frame):
-    """A class to group a bunch of checkboxes together
-
-    Attributes:
-        vars: pointers to all the checkboxes
-    """
-    def __init__(self, parent=None, picks=[], toSelect=0):
-        """Inits the checkbar with len(picks) boxes"""
-        Frame.__init__(self, parent)
-        self.vars = []
-        for pick in picks:
-            var = IntVar()
-            chk = Checkbutton(self, text=pick, variable=var)
-            if toSelect == 0:
-                chk.select()
-            chk.pack(side=LEFT)
-            self.vars.append(var)
-
-    def state(self):
-        """Returns a list of 0/1s depending if a box is checked"""
-        return map((lambda var: var.get()), self.vars)
-#---------------------------------------------------------
-#---------------------------------------------------------
-
-#---------------------------------------------------------
-#---------------------------------------------------------
 def verifyInformation(sets, possibleColorCombos, normal_rarity_percents, commander_rarity_percents, land_rarity_percents, artifact_percent, basic_land_percent, basic_land_percent_removal, deck_mode, numberOfLands, deckSize):
     """Makes sure all passed in information is valid (correct typing, values, etc)
 
@@ -276,10 +250,13 @@ def load_json_sets(setsToInclude, deck_mode):
                 cardName = x["name"]
 
             #If that card is legal in the format we want and unique
-            try:
-                legalResult = x["legalities"][deck_mode]
-            except:
-                legalResult = "Not Legal"
+            if deck_mode == "all":
+                legalResult = "Legal"
+            else:
+                try:
+                    legalResult = x["legalities"][deck_mode]
+                except:
+                    legalResult = "Not Legal"
 
             #See if the card has a manacost
             try:
@@ -288,10 +265,12 @@ def load_json_sets(setsToInclude, deck_mode):
                 try:
                     if x["types"][0] == "Land":
                         legalResult = "Legal"
+                    else:
+                        legalResult = "Not Legal"
                 except:
                     legalResult = "Not Legal"
 
-            if ((legalResult == "Legal" or deck_mode == "all") and cardName not in all_card_names):
+            if (legalResult == "Legal" and cardName not in all_card_names):
                     
                 #Track all card names
                 all_card_names.append(cardName)
@@ -649,11 +628,46 @@ if __name__ == "__main__":
 
     #All of the TKinter GUI stuff is here
 
+    class Checkbar(Frame):
+        """A class to group a bunch of checkboxes together
+
+        Attributes:
+            vars: pointers to all the checkboxes
+        """
+        def __init__(self, parent=None, picks=[], toSelect=0, allBar=True):
+            """Inits the checkbar with len(picks) boxes"""
+            Frame.__init__(self, parent)
+            self.vars = []
+            if allBar == True:
+                var = IntVar()
+                chk = Checkbutton(self, text='All', command=lambda: check_bar_toggle(self), variable=var)
+                chk.pack(side=LEFT)
+                self.vars.append(var)
+            for pick in picks:
+                var = IntVar()
+                chk = Checkbutton(self, text=pick, variable=var)
+                if toSelect == 0:
+                    chk.select()
+                chk.pack(side=LEFT)
+                self.vars.append(var)
+
+        def state(self):
+            """Returns a list of 0/1s depending if a box is checked"""
+            return map((lambda var: var.get()), self.vars)
+
+        def all_on(self):
+            for x in self.vars:
+                x.set(True)
+
+        def all_off(self):
+            for x in self.vars:
+                x.set(False)
+
     def generate_helper():
         """
         A helper method to call deck generation
         """
-        setsToInclude = list(setCheckBar.state()) + list(setCheckBar2.state())
+        setsToInclude = list(setCheckBar.state())[1:] + list(setCheckBar2.state())[1:]
         normal_rarity_percents = [normalC.get("1.0",END), normalUC.get("1.0",END), normalR.get("1.0",END), normalM.get("1.0",END)]
         commander_rarity_percents = [commanderC.get("1.0",END), commanderUC.get("1.0",END), commanderR.get("1.0",END), commanderM.get("1.0",END)]
         land_rarity_percents = [landC.get("1.0",END), landUC.get("1.0",END), landR.get("1.0",END), landM.get("1.0",END)]
@@ -662,7 +676,7 @@ if __name__ == "__main__":
         basic_land_percent_removal = landRPercent.get("1.0",END)
         deck_mode = gmVariable.get()
         numberOfLands = [minLand.get("1.0",END), maxLand.get("1.0",END)]
-        possibleColorCombos = list(noColor.state()) + list(monoColor.state()) + list(dualColor.state()) + list(triColor.state()) + list(quadColor.state()) + list(allColor.state())
+        possibleColorCombos = list(noColor.state()) + list(monoColor.state())[1:] + list(dualColor.state())[1:] + list(triColor.state())[1:] + list(quadColor.state())[1:] + list(allColor.state())
         sideBoard = sideBoardPointer.get()
         deckSize = deck_size.get("1.0",END)
         T.configure(state='normal')
@@ -679,15 +693,76 @@ if __name__ == "__main__":
 
     def focus_next_widget(event):
         """
-        Goes to the next box
+        Goes to the next text box on <Tab> or <Return>
         """
         event.widget.tk_focusNext().focus()
         return("break")
 
+    def check_bar_toggle(checkbar):
+        if sum(list(checkbar.state())[1:]) != len(list(checkbar.state()))-1:
+            checkbar.all_on()
+        else:
+            checkbar.all_off()
+
+    def reset_to_default():
+        """
+        Resets the GUI to the initial parameters
+        """
+        setCheckBar.all_on()
+        setCheckBar2.all_on()
+        noColor.all_on()
+        monoColor.all_on()
+        dualColor.all_on()
+        triColor.all_on()
+        quadColor.all_off()
+        allColor.all_off()
+        normalC.delete('1.0', END)
+        normalC.insert(END, ".15")
+        normalUC.delete('1.0', END)
+        normalUC.insert(END, ".75")
+        normalR.delete('1.0', END)
+        normalR.insert(END, ".10")
+        normalM.delete('1.0', END)
+        normalM.insert(END, ".00")
+        commanderC.delete('1.0', END)
+        commanderC.insert(END, ".00")
+        commanderUC.delete('1.0', END)
+        commanderUC.insert(END, ".25")
+        commanderR.delete('1.0', END)
+        commanderR.insert(END, ".50")
+        commanderM.delete('1.0', END)
+        commanderM.insert(END, ".25")
+        landC.delete('1.0', END)
+        landC.insert(END, ".50")
+        landUC.delete('1.0', END)
+        landUC.insert(END, ".50")
+        landR.delete('1.0', END)
+        landR.insert(END, ".00")
+        landM.delete('1.0', END)
+        landM.insert(END, ".00")
+        landPercent.delete('1.0', END)
+        landPercent.insert(END, ".90")
+        landRPercent.delete('1.0', END)
+        landRPercent.insert(END, ".10")
+        minLand.delete('1.0', END)
+        minLand.insert(END, "23")
+        maxLand.delete('1.0', END)
+        maxLand.insert(END, "27")
+        artifactPercent.delete('1.0', END)
+        artifactPercent.insert(END, ".25")
+        deck_size.delete('1.0', END)
+        deck_size.insert(END, "60")
+        T.configure(state='normal')
+        T.delete('1.0', END)
+        T.insert(END, "Your deck will generate here!")
+        T.configure(state='disabled')
+        gmVariable.set("brawl")
+        sideBoardPointer.set(False)
+
     #Root
     root = Tk()
     root.resizable(False, False)
-    root.geometry("970x870")
+    root.geometry("1000x870")
     root.title("MTGA Random Deck Generator")
     root.iconphoto(False, PhotoImage(file='icon.png'))
 
@@ -709,7 +784,7 @@ if __name__ == "__main__":
     manaFrame = Frame(root)
     manaFrame.pack()
     manaFrame.place(x=10, y=130)
-    noColor = Checkbar(manaFrame, ["Colorless"])
+    noColor = Checkbar(manaFrame, ["Colorless"], allBar=False)
     noColor.pack()
     monoColor = Checkbar(manaFrame, ["R", "W", "G", "U", "B"])
     monoColor.pack()
@@ -719,7 +794,7 @@ if __name__ == "__main__":
     triColor.pack()
     quadColor = Checkbar(manaFrame, ["RGBU", "RGBW", "RGWU", "WBUG", "WRBU"], toSelect=1)
     quadColor.pack()
-    allColor = Checkbar(manaFrame, ["WRBUG"], toSelect=1)
+    allColor = Checkbar(manaFrame, ["WRBUG"], toSelect=1, allBar=False)
     allColor.pack()
     manaFrame.config(relief=GROOVE, bd=2)
   
@@ -909,9 +984,10 @@ if __name__ == "__main__":
     T2.config(yscrollcommand=S3.set)
     T2.insert(END, "Sets: Check the sets you want to play with\nDOM = Domanaria\nHA1 = Historic Anthology 1\nHA2 = Historic Anthology 2\nHA3 = Historic Anthology 3\nXLN = Ixalan\nRIX = Rivals of Ixalan\nM19 = Core 2019\nGRN = Guilds of Ravnica\nRNA = Ravnica Allegiance\nWAR = War of the Spark\nM20 = Core 2020\nELD = Throne of Eldraine\nTHB = Theros Beyond Death\nIKO = Ikoria\nM21 = Core 2021\n\nMana Colors: Check the mana colors you want your deck possibly being. If you have \"R\", \"W\", and \"RW\", theres a 33% chance your deck is only Red, a 33% chance your deck is only White, and a 33% chance your deck is Red and White\nR = Red\nW = White\nG = Green\nU = Blue\nB = Black\n\nRarities: The odds you want to get a card of a certain rarity. For example, normal common = .25 means there's a 25% chance, for each normal card in your deck, it will be a common\n\nBasic Land Percentage: The odds that for each land, it will be a basic land. This is applied before checking the rarity of each land\n\nBasic Land Removal Percentage: For each color in your deck past the first, this number will get subtracted from Basic Land Percentage so that the more colors in your deck, the more likely you will get non basic lands, which wil help with mana fixing\n\nArtifact Percentage: The odds that you will randomly select an artifact. This is here because artifacts can be run in any deck, so this will limit the amount that can be randomly generated in a deck\n\nHistoric and Traditional Historic - 60+ cards, historic legal, 4 similar card max\n\nStandard and Traditional Standard - 60+ cards, standard legal, 4 similar card max\n\nBrawl - 59 unique cards, 1 unique commander, standard legal\n\nFriendly Brawl - 59 unique cards, 1 unique commander, historic legal\n\nSingleton - 60 unique cards, standard legal\n\nArtisan - 60-250 cards, historic legal, commons or uncommons only, 4 similar card max\n\nPauper - 60+ cards, standard legal, commons only, 4 similar card max\n\nLimited - 40+ cards\n\nDirect Game - 60+ cards, historic legal, 4 similar card max")
     T2.configure(state='disabled')
-    Button(root, text='Quit', command=root.quit, height = 2, width = 6).place(x=460, y=10)
-    Button(root, text='Generate', command=generate_helper, height = 2, width = 6).place(x=460, y=70)
-    Button(root, text='Copy\nTo\nClipboard', command=copy_to_clipboard, height = 6, width = 7).place(x=540, y=10)
+    Button(root, text='Quit', command=root.quit, height = 2, width = 6).place(x=580, y=70)
+    Button(root, text='Generate', command=generate_helper, height = 2, width = 6).place(x=500, y=10)
+    Button(root, text='Copy\nDeck', command=copy_to_clipboard, height = 2, width = 6).place(x=580, y=10)
+    Button(root, text='Reset', command=reset_to_default, height = 2, width = 6).place(x=500, y=70)
     root.mainloop()
         
 #----------------------------------------------------------

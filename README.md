@@ -68,5 +68,5 @@ All credit for the JSON files that list all the cards goes to [MTGJSON](https://
 To generate HTML documentation for this program issue the command: pydoc3 -w randomizer
 
 ##TODO
-* Clear button for each block
-* Reset button for entire thing (brings everything back to default)
+* Double check code (clean up, check for redundancies, etc)
+* Testing, testing, testing (catching inputs, making sure all cards are present, etc)
