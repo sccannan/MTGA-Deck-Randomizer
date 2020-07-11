@@ -783,17 +783,15 @@ if __name__ == "__main__":
     allColor = Checkbar(manaFrame, ["WRBUG"], toSelect=1, allBar=False)
     allColor.pack()
     manaFrame.config(relief=GROOVE, bd=2)
-  
+ 
+    rarityLabels = ["Common", "Uncommon", "Rare", "Mythic"]
+
     #Normal Cards
     normalCard = Label(root, text="Normal Card Rarities")
     normalCard.place(x=10, y=290)
     normalFrame = Frame(root)
     normalFrame.pack()
     normalFrame.place(x=10, y=310)
-    Label(normalFrame, text="Common").grid(row=0)
-    Label(normalFrame, text="Uncommon").grid(row=1)
-    Label(normalFrame, text="Rare").grid(row=2)
-    Label(normalFrame, text="Mythic").grid(row=3)
     normalC = Text(normalFrame, height=1, width=10)
     normalUC = Text(normalFrame, height=1, width=10)
     normalR = Text(normalFrame, height=1, width=10)
@@ -801,6 +799,7 @@ if __name__ == "__main__":
     normalList = [normalC, normalUC, normalR, normalM]
     normalListVariable = ["15", "75", "10", "0"]
     for x in range(len(normalList)):
+        Label(normalFrame, text=rarityLabels[x]).grid(row=x)
         normalList[x].bind("<Tab>", focus_next_widget)
         normalList[x].bind("<Return>", focus_next_widget)
         normalList[x].insert(END, normalListVariable[x])
@@ -814,10 +813,6 @@ if __name__ == "__main__":
     commanderFrame = Frame(root)
     commanderFrame.pack()
     commanderFrame.place(x=210, y=310)
-    Label(commanderFrame, text="Common").grid(row=0)
-    Label(commanderFrame, text="Uncommon").grid(row=1)
-    Label(commanderFrame, text="Rare").grid(row=2)
-    Label(commanderFrame, text="Mythic").grid(row=3)
     commanderC = Text(commanderFrame, height=1, width=10)
     commanderUC = Text(commanderFrame, height=1, width=10)
     commanderR = Text(commanderFrame, height=1, width=10)
@@ -825,6 +820,7 @@ if __name__ == "__main__":
     commanderList = [commanderC, commanderUC, commanderR, commanderM]
     commanderListVariable = ["0", "25", "50", "25"]
     for x in range(len(commanderList)):
+        Label(commanderFrame, text=rarityLabels[x]).grid(row=x)
         commanderList[x].bind("<Tab>", focus_next_widget)
         commanderList[x].bind("<Return>", focus_next_widget)
         commanderList[x].insert(END, commanderListVariable[x])
@@ -838,10 +834,6 @@ if __name__ == "__main__":
     landFrame = Frame(root)
     landFrame.pack()
     landFrame.place(x=410, y=310)
-    Label(landFrame, text="Common").grid(row=0)
-    Label(landFrame, text="Uncommon").grid(row=1)
-    Label(landFrame, text="Rare").grid(row=2)
-    Label(landFrame, text="Mythic").grid(row=3)
     landC = Text(landFrame, height=1, width=10)
     landUC = Text(landFrame, height=1, width=10)
     landR = Text(landFrame, height=1, width=10)
@@ -849,6 +841,7 @@ if __name__ == "__main__":
     landList = [landC, landUC, landR, landM]
     landListVariable = ["50", "50", "0", "0"]
     for x in range(len(landList)):
+        Label(landFrame, text=rarityLabels[x]).grid(row=x)
         landList[x].bind("<Tab>", focus_next_widget)
         landList[x].bind("<Return>", focus_next_widget)
         landList[x].insert(END, landListVariable[x])
@@ -865,7 +858,7 @@ if __name__ == "__main__":
     Label(landManaFrame, text="Basic Land Percentage").grid(row=0)
     Label(landManaFrame, text="Basic Land Removal Percentage").grid(row=1)
     Label(landManaFrame, text="Minimum Lands").grid(row=2)
-    Label(landManaFrame, text="Maxmimum").grid(row=3)
+    Label(landManaFrame, text="Maximum Lands").grid(row=3)
     landPercent = Text(landManaFrame, height=1, width=10)
     landRPercent = Text(landManaFrame, height=1, width=10)
     minLand = Text(landManaFrame, height=1, width=10)
