@@ -2,7 +2,7 @@
 A random deck generator for MTGA
 
 ## What is this?
-This application is a way for a user to randomly generate a Magic the Gathering Arena deck. Based on the settings from the GUI, a random deck will be generated. From there, launch MTGA and go to the "Deck" tab. Then hit import deck. All cards have equal chance of being chosen, regardless if how many sets they have been in (the odds of getting the card "Opt" is the same as any other card, even though it's in multiple sets) Additionally, split mana cards are only put into decks with BOTH of the colors for simiplicities sake.
+This application is a way for a user to randomly generate a Magic the Gathering Arena deck. Based on the settings from the GUI, a random deck will be generated. From there, launch MTGA and go to the "Deck" tab. Then hit import deck. All cards have equal chance of being chosen, regardless if how many sets they have been in (the odds of getting the card "Opt" is the same as any other card, even though it's in multiple sets). Additionally, split mana cards are only put into decks with BOTH of the colors for simiplicities sake.
 
 ![Example GUI](GUI.png?raw=true "GUI")
 
@@ -66,3 +66,9 @@ All credit for the JSON files that list all the cards goes to [MTGJSON](https://
 
 ## Pydocs
 To generate HTML documentation for this program issue the command: pydoc3 -w randomizer
+
+##TODO
+* Clear button for each block
+* Reset button for entire thing (brings everything back to default)
+* At least one mana color box and one set needs to be selected (catch that in verify info)
+* Enter/Tab button in a text field goes to new line, need to keep it on one line

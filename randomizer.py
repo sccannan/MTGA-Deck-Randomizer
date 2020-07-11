@@ -270,7 +270,7 @@ def load_json_sets(setsToInclude, deck_mode):
                 cardName = x["names"][0] + " // " + x["names"][1]
             else:
                 cardName = x["name"]
-                
+
             #If that card is legal in the format we want and unique
             try:
                 legalResult = x["legalities"][deck_mode]
@@ -281,7 +281,11 @@ def load_json_sets(setsToInclude, deck_mode):
             try:
                 manaCost = x["manaCost"]
             except:
-                continue
+                try:
+                    if x["types"][0] == "Land":
+                        legalResult = "Legal"
+                except:
+                    legalResult = "Not Legal"
 
             if ((legalResult == "Legal" or deck_mode == "all") and cardName not in all_card_names):
                     
@@ -554,6 +558,9 @@ def generateDeck(setsToInclude, normal_rarity_percents, commander_rarity_percent
     numberOfLands[1] = int(round(float(numberOfLands[1]))) 
 
     #Loads the JSONS
+    normal = []
+    commander = []
+    land = []
     if deck_mode == "singleton":
         normal, commander, land = load_json_sets(setsToInclude, "standard")
     elif deck_mode == "friendly brawl":
