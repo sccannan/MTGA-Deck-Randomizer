@@ -1,8 +1,8 @@
 # MTGA Deck Randomizer
-A random deck maker for MTGA
+A random deck generator for MTGA
 
 ## What is this?
-This application is a way for a user to randomly generate a Magic the Gathering Arena deck. Based on the settings from the GUI, a random deck will be generated. All cards have equal chance of being chosen, regardless if how many sets they have been in (the odds of getting the card "Opt" is the same as any other card, even though it's in multiple sets) Additionally, split mana cards are only put into decks with BOTH of the colors for simiplicities sake.
+This application is a way for a user to randomly generate a Magic the Gathering Arena deck. Based on the settings from the GUI, a random deck will be generated. From there, launch MTGA and go to the "Deck" tab. Then hit import deck. All cards have equal chance of being chosen, regardless if how many sets they have been in (the odds of getting the card "Opt" is the same as any other card, even though it's in multiple sets) Additionally, split mana cards are only put into decks with BOTH of the colors for simiplicities sake.
 
 ![Example GUI](GUI.png?raw=true "GUI")
 
