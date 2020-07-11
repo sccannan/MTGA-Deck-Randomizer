@@ -66,9 +66,7 @@ def verifyInformation(sets, possibleColorCombos, normal_rarity_percents, command
 
     #The possible color combinations
     ccToInclude = []
-    possibleCC = ["", "R", "W", "G", "U", "B", "RW", "RG", "RU", "RB", "WG", "WU", "WB", "GU", "GB", "UB", "RGB", "WGU", "BRU", "GWR", "UWB", "URW", "RWB", "BGU", "RUG", "WGB", "RGBU", "RGBW", "RGWU", "WBUG", "WRBU", "WRBUG"]
-    for x in range(len(possibleCC)):
-        possibleCC[x] = "".join(sorted(possibleCC[x]))
+    possibleCC = ["", "R", "W", "G", "U", "B", "RW", "GR", "RU", "BR", "GW", "UW", "BW", "GU", "BG", "BU", "BGR", "GUW", "BRU", "GRW", "BUW", "RUW", "BRW", "BGU", "GRU", "BGW", "BGRU", "BGRW", "GRUW", "BGUW", "BRUW", "BGRUW"]
     for x in range(len(possibleColorCombos)):
         if possibleColorCombos[x] == 1:
             ccToInclude.append(possibleCC[x])
@@ -638,6 +636,8 @@ def generateDeck(setsToInclude, normal_rarity_percents, commander_rarity_percent
 #----------------------------------------------------------
 if __name__ == "__main__":
 
+    #All of the TKinter GUI stuff is here
+
     #Root
     root = Tk()
     root.resizable(False, False)
@@ -651,7 +651,6 @@ if __name__ == "__main__":
     setCheckBar = Checkbar(root, ["DOM","HA1","HA2","HA3","XLN","RIX","M19"])
     setCheckBar.place(x=10, y=30)
     setCheckBar.config(relief=GROOVE, bd=2)
-
     setLabel = Label(root, text="Standard Sets")
     setLabel.place(x=10, y=60)
     setCheckBar2 = Checkbar(root, ["GRN","RNA","WAR","M20","ELD","THB","IKO","M21"])

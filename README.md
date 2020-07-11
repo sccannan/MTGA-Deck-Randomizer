@@ -67,6 +67,3 @@ All credit for the JSON files that list all the cards go to [MTGJSON](https://mt
 
 ## Pydocs
 To generate HTML documentation for this program issue the command: pydoc3 -w randomizer
-
-## TODO
-* Improve GUI
