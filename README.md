@@ -29,7 +29,6 @@ This application is a way for a user to randomly generate a Magic the Gathering 
 ## Usage
 ### Installation
 * This program requires python3, which a guide for installation can be downloaded [HERE](https://wiki.python.org/moin/BeginnersGuide/Download)
-* This program requires tkinter, which a guide for installation can be downloaded [HERE](https://tkdocs.com/tutorial/install.html)
 
 ### Running the program
 * To run the program in Windows, simply double click on "randomizer.py". For Linux/MacOS, in the terminal navigate to the directory where "randomizer.py" is and do "python3 randomizer.py"
