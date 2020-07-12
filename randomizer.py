@@ -532,7 +532,8 @@ def print_deck(deck, deck_size, sideBoard, deck_mode):
 
     deck_to_return = ""
     basics = [0, 0, 0, 0, 0]
-    basicLands = ["Mountain", "Plains", "Swamp", "Island", "Forest"]
+    multiples = []
+    multiplesCount = []
     for x in range(deck_size):
         if x == 0 and deck_mode == "brawl":
             deck_to_return = deck_to_return + "Commander\n"
@@ -541,21 +542,48 @@ def print_deck(deck, deck_size, sideBoard, deck_mode):
         elif (x == 0 and deck_mode != "brawl"):
             deck_to_return = deck_to_return + "Deck\n"
         skip = 0
-        for y in range(len(basicLands)):
-            if deck[x] == basicLands[y]:
-                basics[y] = basics[y] + 1
-                skip = 1
-                break
+
+        #Check for non sideboard multiples
+        tempDeck = deck[:deck_size]
+        if tempDeck.count(deck[x]) > 1:
+            if deck[x] not in multiples:
+                multiples.append(deck[x])
+                multiplesCount.append(tempDeck.count(deck[x]))
+            skip = 1
+
+        #If the card isnt a multiple
         if skip == 0:
             deck_to_return = deck_to_return + "1 "+ deck[x] + "\n"
-    for x in range(len(basics)):
-        if basics[x] != 0:
-            deck_to_return = deck_to_return + str(basics[x]) + " " + basicLands[x] + "\n"
 
+    #Multiples
+    for x in range(len(multiples)):
+        deck_to_return = deck_to_return + str(multiplesCount[x]) + " " + multiples[x] + "\n"
+
+    #If we want a sideboard 
     if sideBoard == True:
+        multiples = []
+        multiplesCount = []
         deck_to_return = deck_to_return + "\nSideboard\n"
+
+        #For each sideboard card
         for x in range(len(deck)-deck_size):
-            deck_to_return = deck_to_return + "1 "+ deck[x+deck_size] + "\n"
+            skip = 0
+
+            #Check for sideboard multiples
+            tempDeck = deck[deck_size:]
+            if tempDeck.count(deck[x+deck_size]) > 1:
+                if deck[x+deck_size] not in multiples:
+                    multiples.append(deck[x+deck_size])
+                    multiplesCount.append(tempDeck.count(deck[x+deck_size]))
+                skip = 1
+
+            #If the card isnt a multiple
+            if skip == 0:
+                deck_to_return = deck_to_return + "1 "+ deck[x+deck_size] + "\n"
+
+        #Multiples
+        for x in range(len(multiples)):
+            deck_to_return = deck_to_return + str(multiplesCount[x]) + " " + multiples[x] + "\n"
     return deck_to_return[:-1]
 #----------------------------------------------------------
 #----------------------------------------------------------
