@@ -4,7 +4,7 @@ A random deck generator for MTGA
 ## What is this?
 This application is a way for a user to randomly generate a Magic the Gathering Arena deck. Based on the settings from the GUI, a random deck will be generated. From there, launch MTGA and go to the "Deck" tab. Then hit import deck. All cards have equal chance of being chosen, regardless if how many sets they have been in (the odds of getting the card "Opt" is the same as any other card, even though it's in multiple sets). Companions are disabled for simplicities sake.
 
-![Example GUI](GUI.png)
+![Example GUI](GUI.png?raw=true "GUI")
 
 ## Supported Game Modes
 * Historic and Traditional Historic
