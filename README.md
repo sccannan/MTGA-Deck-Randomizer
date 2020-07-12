@@ -71,4 +71,4 @@ To generate HTML documentation for this program issue the command: pydoc3 -w ran
 * Double check code (clean up, check for redundancies, etc)
 * Testing, testing, testing (catching inputs, making sure all cards are present, legalities, card sets, etc)
 * Check spelling
-* Split mana - if split mana detected, dont remove the "/" -- just change how it is read in remove_colors (still needs to have both for brawl, and fix cmc)
+* Have deck do 2 Opt instead of 1 Opt 2 times

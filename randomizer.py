@@ -289,11 +289,11 @@ def load_json_sets(setsToInclude, deck_mode):
                     land[magic_number].append([cardName, colorIdentity, -1, -1])
 
                 else:
-                    normal[magic_number].append([cardName, colorIdentity, x["manaCost"].replace("/", ""), x["types"][0]])
-
+                    normal[magic_number].append([cardName, colorIdentity, x["manaCost"], x["types"][0]])
+                    
                     #If the card is a legendary creature or planeswalker, mark it as a commander
                     if ((x["type"].find("Legendary") != -1) and ((x["type"].find("Creature") != -1) or (x["type"].find("Planeswalker") != -1))):
-                        commander[magic_number].append([cardName, colorIdentity, x["manaCost"].replace("{", "").replace("}", ""), x["types"][0]])
+                        commander[magic_number].append([cardName, colorIdentity, x["manaCost"], x["types"][0]])
 
     return normal, commander, land
 #----------------------------------------------------------
@@ -301,22 +301,77 @@ def load_json_sets(setsToInclude, deck_mode):
 
 #----------------------------------------------------------
 #----------------------------------------------------------
-def color_removal(card_list, colorCombo):
+def color_removal(card_list, colorCombo, deck_mode):
     """Removes all cards that are not in the specified color
+       If a card is split mana (Red or White) and the mode is brawl, both colors must be valid
+       If a card is split mana (Red or White) and the mode is standard, as long as 1 possible combo works keep the card
 
     Args:
         card_list (list): A list of cards
         colorCombo (str): The color combo you have
+        deck_mode (str): The deck mode
 
     Returns:
         list: A list of cards with colors now removed
     """
 
+    #For each rarirty
     for x in range(len(card_list)):
         markForDeletion = []
+
+        #For each cared in each rarity
         for y in range(len(card_list[x])):
-            if colorCombo.find(card_list[x][y][1]) == -1:
+
+            #If that card isnt a land
+            if card_list[x][y][2] != -1:
+
+                #If that card is a split mana card
+                if card_list[x][y][2].find("/") != -1 and deck_mode != "brawl":
+
+                    #Make all color combos with the splits
+                    colorComboSplit = []
+                    def small_recursive_function(manaSymbols):
+                        if manaSymbols.find("/") != -1:
+                            colorComboSplit.append(small_recursive_function((manaSymbols[:manaSymbols.find("/")-1]) + (manaSymbols[manaSymbols.find("/")+1:])))
+                            colorComboSplit.append(small_recursive_function((manaSymbols[:manaSymbols.find("/")]) + (manaSymbols[manaSymbols.find("/")+2:])))
+                        else:
+                            return manaSymbols
+                    small_recursive_function(card_list[x][y][2])
+
+                    #Remove all None
+                    markForDeletion2 = []
+                    for a in range(len(colorComboSplit)):
+                        if colorComboSplit[a] == None:
+                            markForDeletion2.append(a)
+                    for a in sorted(markForDeletion2, reverse=True):
+                        del colorComboSplit[a]
+
+                    #As long as 1 color works, we can keep the card
+                    keep = 0
+                    manaSymbols = ["R", "W", "B", "U", "G"]
+                    for a in range(len(colorComboSplit)):
+                        tempColorIdentityList = list(set(colorComboSplit[a]))
+                        tempColorIdentity = ""
+                        for b in tempColorIdentityList:
+                            if b in manaSymbols:
+                                tempColorIdentity = tempColorIdentity + b
+                        if colorCombo.find(tempColorIdentity.replace("{", "").replace("}", "")) != -1:
+                            keep = 1
+                            card_list[x][y][1] = tempColorIdentity
+                            card_list[x][y][2] = colorComboSplit[a]
+                            break
+                    if keep == 0:
+                        markForDeletion.append(y)
+                        
+                #Elif that cards color identity isnt an option
+                elif colorCombo.find(card_list[x][y][1]) == -1:
+                    markForDeletion.append(y)
+
+            #Elif that cards color identity isnt an option
+            elif colorCombo.find(card_list[x][y][1]) == -1:
                 markForDeletion.append(y)
+
+        #Remove the bad cards
         for y in sorted(markForDeletion, reverse = True):
             del card_list[x][y]
     return card_list
@@ -414,7 +469,7 @@ def pick_a_card(card_list, rarityPercents, deckCMC, deck, artifact_percent, basi
                     else:
                         try:
                             deckCMC[5] = deckCMC[5] + int(y)
-                        except: #X costs
+                        except: #X costs, { and }
                             deckCMC[5] = deckCMC[5] + 0
             
             #Update CMC for lands
@@ -590,8 +645,8 @@ def generateDeck(setsToInclude, normal_rarity_percents, commander_rarity_percent
         basic_land_percent = float(basic_land_percent) - (len(colorCombo) * float(basic_land_percent_removal))
 
     #Remove all cards that are not part of the colorCombo
-    normal = color_removal(normal, colorCombo)
-    land = color_removal(land, colorCombo)
+    normal = color_removal(normal, colorCombo, deck_mode)
+    land = color_removal(land, colorCombo, deck_mode)
 
     #Start picking normal cards
     numberOfLoops = deck_size - numberOfLands[1] - len(deck)
@@ -632,7 +687,6 @@ def generateDeck(setsToInclude, normal_rarity_percents, commander_rarity_percent
 if __name__ == "__main__":
 
     #All of the TKinter GUI stuff is here
-
     class Checkbar(Frame):
         """A class to group a bunch of checkboxes together
 
@@ -674,9 +728,9 @@ if __name__ == "__main__":
         A helper method to call deck generation
         """
         setsToInclude = list(setCheckBar.state())[1:] + list(setCheckBar2.state())[1:]
-        normal_rarity_percents = [normalC.get("1.0",END), normalUC.get("1.0",END), normalR.get("1.0",END), normalM.get("1.0",END)]
-        commander_rarity_percents = [commanderC.get("1.0",END), commanderUC.get("1.0",END), commanderR.get("1.0",END), commanderM.get("1.0",END)]
-        land_rarity_percents = [landC.get("1.0",END), landUC.get("1.0",END), landR.get("1.0",END), landM.get("1.0",END)]
+        normal_rarity_percents = [normalList[0].get("1.0",END), normalList[1].get("1.0",END), normalList[2].get("1.0",END), normalList[3].get("1.0",END)]
+        commander_rarity_percents = [commanderList[0].get("1.0",END), commanderList[1].get("1.0",END), commanderList[2].get("1.0",END), commanderList[3].get("1.0",END)]
+        land_rarity_percents = [landList[0].get("1.0",END), landList[1].get("1.0",END), landList[2].get("1.0",END), landList[3].get("1.0",END)]
         artifact_percent = artifactPercent.get("1.0",END)
         basic_land_percent = landPercent.get("1.0",END)
         basic_land_percent_removal = landRPercent.get("1.0",END)
@@ -792,14 +846,11 @@ if __name__ == "__main__":
     normalFrame = Frame(root)
     normalFrame.pack()
     normalFrame.place(x=10, y=310)
-    normalC = Text(normalFrame, height=1, width=10)
-    normalUC = Text(normalFrame, height=1, width=10)
-    normalR = Text(normalFrame, height=1, width=10)
-    normalM = Text(normalFrame, height=1, width=10)
-    normalList = [normalC, normalUC, normalR, normalM]
+    normalList = []
     normalListVariable = ["15", "75", "10", "0"]
-    for x in range(len(normalList)):
+    for x in range(4):
         Label(normalFrame, text=rarityLabels[x]).grid(row=x)
+        normalList.append(Text(normalFrame, height=1, width=10))
         normalList[x].bind("<Tab>", focus_next_widget)
         normalList[x].bind("<Return>", focus_next_widget)
         normalList[x].insert(END, normalListVariable[x])
@@ -813,14 +864,11 @@ if __name__ == "__main__":
     commanderFrame = Frame(root)
     commanderFrame.pack()
     commanderFrame.place(x=210, y=310)
-    commanderC = Text(commanderFrame, height=1, width=10)
-    commanderUC = Text(commanderFrame, height=1, width=10)
-    commanderR = Text(commanderFrame, height=1, width=10)
-    commanderM = Text(commanderFrame, height=1, width=10)
-    commanderList = [commanderC, commanderUC, commanderR, commanderM]
+    commanderList = []
     commanderListVariable = ["0", "25", "50", "25"]
-    for x in range(len(commanderList)):
+    for x in range(4):
         Label(commanderFrame, text=rarityLabels[x]).grid(row=x)
+        commanderList.append(Text(commanderFrame, height=1, width=10))
         commanderList[x].bind("<Tab>", focus_next_widget)
         commanderList[x].bind("<Return>", focus_next_widget)
         commanderList[x].insert(END, commanderListVariable[x])
@@ -834,14 +882,11 @@ if __name__ == "__main__":
     landFrame = Frame(root)
     landFrame.pack()
     landFrame.place(x=410, y=310)
-    landC = Text(landFrame, height=1, width=10)
-    landUC = Text(landFrame, height=1, width=10)
-    landR = Text(landFrame, height=1, width=10)
-    landM = Text(landFrame, height=1, width=10)
-    landList = [landC, landUC, landR, landM]
+    landList = []
     landListVariable = ["50", "50", "0", "0"]
-    for x in range(len(landList)):
+    for x in range(4):
         Label(landFrame, text=rarityLabels[x]).grid(row=x)
+        landList.append(Text(landFrame, height=1, width=10))
         landList[x].bind("<Tab>", focus_next_widget)
         landList[x].bind("<Return>", focus_next_widget)
         landList[x].insert(END, landListVariable[x])
