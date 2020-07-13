@@ -29,7 +29,7 @@ def verifyInformation(sets, possibleColorCombos, normal_rarity_percents, command
         basic_land_percent (int): An int for how often we want to pick a basic land
         basic_land_percent_removal (int): A decimal for modifying basic_land_percent
         deck_mode (str): A string representing what type of format we want to use
-        numberOfLands (list): A list containing the minimum number of lands you want in a deck, and the maximum number of lands you want in a deck
+        numberOfLands (list): A list containing the minimum number of lands [0] you want in a deck, and the maximum number of lands [1] you want in a deck
         deckSize (int): The deck size
 
     Returns:
@@ -337,24 +337,28 @@ def color_removal(card_list, colorCombo, deck_mode):
                         else:
                             return manaSymbols
                     small_recursive_function(card_list[x][y][2])
-
-                    #Remove all None
+                    
+                    #Remove all None and repeats
                     markForDeletion2 = []
+                    reducedColors = []
                     for a in range(len(colorComboSplit)):
-                        if colorComboSplit[a] == None:
+                        if colorComboSplit[a] == None or set(colorComboSplit[a]) in reducedColors:
                             markForDeletion2.append(a)
+                        else:
+                            reducedColors.append(set(colorComboSplit[a]))
                     for a in sorted(markForDeletion2, reverse=True):
                         del colorComboSplit[a]
 
                     #As long as 1 color works, we can keep the card
                     keep = 0
-                    manaSymbols = ["R", "W", "B", "U", "G"]
+                    manaSymbols = ["B", "G", "R", "U", "W"]
                     for a in range(len(colorComboSplit)):
                         tempColorIdentityList = list(set(colorComboSplit[a]))
                         tempColorIdentity = ""
                         for b in tempColorIdentityList:
                             if b in manaSymbols:
                                 tempColorIdentity = tempColorIdentity + b
+
                         if colorCombo.find(tempColorIdentity.replace("{", "").replace("}", "")) != -1:
                             keep = 1
                             card_list[x][y][1] = tempColorIdentity

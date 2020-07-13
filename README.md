@@ -71,3 +71,4 @@ To generate HTML documentation for this program issue the command: pydoc3 -w ran
 * Double check code (clean up, check for redundancies, etc)
 * Testing, testing, testing (catching inputs, making sure all cards are present, legalities, card sets, etc)
 * Check spelling
+* Explain algorithms in README
