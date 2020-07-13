@@ -56,6 +56,8 @@ def verifyInformation(sets, possibleColorCombos, normal_rarity_percents, command
     rarity_percents_list = [normal_rarity_percents, commander_rarity_percents, land_rarity_percents]
     rarity_percents_list_names = ["Normal", "Commander", "Land"]
     for x in range(len(rarity_percents_list)):
+        if deck_mode != "brawl" and deck_mode != "friendly brawl" and rarity_percents_list[x] == commander_rarity_percents: #if we arent playing commander, ignore the commander fields
+            continue
         if len(rarity_percents_list[x]) != 4:
             return("Error!\nThere are only 4 rarities in MTG - the provided " + rarity_percents_list_names[x] + " rarities list has", len(rarity_percents_list)), [], []
         for y in range(4):
@@ -611,7 +613,8 @@ def generateDeck(setsToInclude, normal_rarity_percents, commander_rarity_percent
         return deck_mode
     for x in range(4):
         normal_rarity_percents[x] = normal_rarity_percents[x]/100
-        commander_rarity_percents[x] = commander_rarity_percents[x]/100
+        if deck_mode == "brawl" or deck_mode == "friendly brawl": #if we arent playing commander, ignore the commander fields
+            commander_rarity_percents[x] = commander_rarity_percents[x]/100
         land_rarity_percents[x] = land_rarity_percents[x]/100
     artifact_percent = float(artifact_percent)/100
     basic_land_percent = float(basic_land_percent)/100
