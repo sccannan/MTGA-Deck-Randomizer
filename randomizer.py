@@ -16,7 +16,7 @@ from tkinter import *
 
 #---------------------------------------------------------
 #---------------------------------------------------------
-def verifyInformation(sets, possibleColorCombos, normal_rarity_percents, commander_rarity_percents, land_rarity_percents, artifact_percent, basic_land_percent, basic_land_percent_removal, deck_mode, numberOfLands, deckSize):
+def verifyInformation(sets, possibleColorCombos, normal_rarity_percents, commander_rarity_percents, land_rarity_percents, artifact_percent, basic_land_percent, basic_land_percent_removal, deck_mode, numberOfLands, deckSize, sideBoard):
     """Makes sure all passed in information is valid (correct typing, values, etc)
 
     Args:
@@ -31,6 +31,7 @@ def verifyInformation(sets, possibleColorCombos, normal_rarity_percents, command
         deck_mode (str): A string representing what type of format we want to use
         numberOfLands (list): A list containing the minimum number of lands [0] you want in a deck, and the maximum number of lands [1] you want in a deck
         deckSize (int): The deck size
+        sideBoard (int): 0 for no sideboard, 1 for sideboard
 
     Returns:
         str: Either an error message on failure, or the deck mode
@@ -48,63 +49,35 @@ def verifyInformation(sets, possibleColorCombos, normal_rarity_percents, command
             ccToInclude.append(possibleCC[x])
         elif possibleColorCombos[x] == 0:
             pass
+        else:
+            return("Error!\nUnknown value detected - color list must contain only 0s and 1s"), [], []
 
     #Make sure the normal/commander/land percentages are numbers, total 1, there are no negative values, and that there are only 4 values present
-    if len(normal_rarity_percents) != 4:
-        return("Error!\nThere are only 4 rarities in MTG - the provided normal rarities list has", len(normal_rarity_percents)), [], []
-    if len(commander_rarity_percents) != 4:
-        return("Error!\nThere are only 4 rarities in MTG - the provided commander rarities list has", len(commander_rarity_percents)), [], []
-    if len(land_rarity_percents) != 4:
-        return("Error!\nThere are only 4 rarities in MTG - the provided land rarities has", len(land_rarity_percents)), [], []
-    for x in range(4):
-        try:
-            normal_rarity_percents[x] = float(normal_rarity_percents[x])
-        except:
-            return("Error!\nNon numeric value detected for normal rarity"), [], []
-        if normal_rarity_percents[x] < 0:
-            return("Error!\nNegative value detected for normal rarity"), [], []
-        try:
-            commander_rarity_percents[x] = float(commander_rarity_percents[x])
-        except:
-            return("Error!\nNon numeric value detected for commander rarity"), [], []
-        if commander_rarity_percents[x] < 0:
-            return("Error!\nNegative value detected for commander rarity"), [], []
-        try:
-            land_rarity_percents[x] = float(land_rarity_percents[x])
-        except:
-            return("Error!\nNon numeric value detected for land rarity"), [], []
-        if land_rarity_percents[x] < 0:
-            return("Error!\nNegative value detected for land rarity"), [], []
-    if sum(normal_rarity_percents) != 100:
-        return("Error!\nNormal rarity decimals dont equal 100"), [], []
-    if sum(commander_rarity_percents) != 100:
-        return("Error!\nCommander rarity decimals dont equal 100"), [], []
-    if sum(land_rarity_percents) != 100:
-        return("Error!\nLand rarity decimals dont equal 100"), [], []
+    rarity_percents_list = [normal_rarity_percents, commander_rarity_percents, land_rarity_percents]
+    rarity_percents_list_names = ["Normal", "Commander", "Land"]
+    for x in range(len(rarity_percents_list)):
+        if len(rarity_percents_list[x]) != 4:
+            return("Error!\nThere are only 4 rarities in MTG - the provided " + rarity_percents_list_names[x] + " rarities list has", len(rarity_percents_list)), [], []
+        for y in range(4):
+            try:
+                rarity_percents_list[x][y] = float(rarity_percents_list[x][y])
+            except:
+                return("Error!\nNon numeric value detected for " + rarity_percents_list_names[x] + " rarity"), [], []
+            if rarity_percents_list[x][y] < 0:
+                return("Error!\nNegative value detected for " + rarity_percents_list_names[x] + " rarity"), [], []
+        if sum(rarity_percents_list[x]) != 100:
+            return("Error!\n" + rarity_percents_list_names[x] + " rarity decimals dont equal 100"), [], []
 
-    #Makes sure artifact percentage is 0<x<100 and is a number
-    try:
-        artifact_percent = float(artifact_percent)
-    except:
-        return("Error!\nNon numeric value detected for artifact percentage"), [], []
-    if artifact_percent > 100 or artifact_percent < 0:
-        return("Error!\nArtifact percentage decimal isnt between 0 and 100"), [], []
-
-    #Makes sure basic lands percentage is 0<x<100 and is a number
-    try:
-        basic_land_percent = float(basic_land_percent)
-    except:
-        return("Error!\nNon numeric value detected for basic land percentage"), [], []
-    if basic_land_percent > 100 or basic_land_percent < 0:
-        return("Error!\nBasic land percentage decimal isnt between 0 and 100"), [], []
-
-    #Makes sure basic lands removal percentage is 0<x<100 and is a number
-    try:
-        basic_land_percent_removal = float(basic_land_percent_removal)
-    except:
-        return("Error!\nNon numeric value detected for basic land removal percentage decimal"), [], []
-    if basic_land_percent_removal > 100 or basic_land_percent_removal < 0:
-        return("Error!\nBasic land removal percentage decimal isnt between 0 and 100"), [], []
+    #Makes sure artifact, basic lands, and basic lands removal percentage is 0<x<100 and is a number
+    other_rarity_percents_list = [artifact_percent, basic_land_percent, basic_land_percent_removal]
+    other_rarity_percents_list_names = ["Artifact", "Basic land", "Basic land removal percentage"]
+    for x in range(len(other_rarity_percents_list)):
+        try:
+            other_rarity_percents_list[x] = float(other_rarity_percents_list[x])
+        except:
+            return("Error!\nNon numeric value detected for " + other_rarity_percents_list[x] + " percentage"), [], []
+        if other_rarity_percents_list[x] > 100 or other_rarity_percents_list[x] < 0:
+            return("Error!\n" + other_rarity_percents_list[x] + " percentage decimal isnt between 0 and 100"), [], []
 
     #Make sure the deck size is a number
     try:
@@ -115,15 +88,12 @@ def verifyInformation(sets, possibleColorCombos, normal_rarity_percents, command
     possibleSets = ["DOM", "HA1", "HA2", "HA3", "XLN", "RIX", "M19", "GRN", "RNA", "WAR", "M20", "ELD", "THB", "IKO", "M21"]
 
     #Make sure the deck mode is supported
-    if deck_mode == "brawl":
+    if deck_mode == "brawl" or deck_mode == "friendly brawl":
         if deckSize != 60:
             return("Error!\nBrawl requires at 60 cards"), [], []
-        possibleSets = possibleSets[7:]
-        sets = sets[7:]
-
-    elif deck_mode == "friendly brawl":
-        if deckSize != 60:
-            return("Error!\nBrawl requires at 60 cards"), [], []
+        if deck_mode == "brawl":
+            possibleSets = possibleSets[7:]
+            sets = sets[7:]
 
     elif deck_mode == "standard":
         if deckSize < 60:
@@ -132,14 +102,14 @@ def verifyInformation(sets, possibleColorCombos, normal_rarity_percents, command
         sets = sets[7:]
 
     elif deck_mode == "pauper":
-        if normal_rarity_percents[0] != 1 or commander_rarity_percents[0] != 1 or land_rarity_percents[0] != 1:
+        if float(normal_rarity_percents[0]) != 1 or float(commander_rarity_percents[0]) != 1 or float(land_rarity_percents[0]) != 1:
             return("Error!\nPauper only supports commons"), [], []
         if deckSize < 60:
             return("Error!\nPauper requires at least 60 cards"), [], []
         deck_mode = "historic"
 
     elif deck_mode == "artisan":
-        if ((normal_rarity_percents[0] + normal_rarity_percents[1] != 1) or (commander_rarity_percents[0] + commander_rarity_percents[1] != 1) or (land_rarity_percents[0] + land_rarity_percents[1] != 1)):
+        if ((float(normal_rarity_percents[0]) + float(normal_rarity_percents[1]) != 1) or (float(commander_rarity_percents[0]) + float(commander_rarity_percents[1]) != 1) or (float(land_rarity_percents[0]) + float(land_rarity_percents[1]) != 1)):
             return("Error!\nArtisan only supports commons or uncommons"), [], []
         if deckSize < 60 or deckSize > 250:
             return("Error!\nArtisan requires at least 60 cards and maximum 250 cards"), [], []
@@ -178,6 +148,16 @@ def verifyInformation(sets, possibleColorCombos, normal_rarity_percents, command
             setsToInclude.append(possibleSets[x])
         elif sets[x] == 0:
             pass
+        else:
+            return("Error!\nUnknown value detected - sets to include list must contain only 0s and 1s"), [], []
+
+    #Make sure those JSONs exist
+    for x in setsToInclude:
+        try:
+            read_file = open("./Sets/"+x+".json", "r", encoding="utf8")
+            read_file.close()
+        except:
+            return("Error!\nFile \"./Sets/" + x + ".json\" could not be found"), [], []
 
     #Make sure the number of lands is valid
     try:
@@ -193,6 +173,14 @@ def verifyInformation(sets, possibleColorCombos, normal_rarity_percents, command
         return("Error!\nMinimum lands must be greater than 0"), [], []
     if max_lands < 0:
         return("Error!\nMaximum lands must be greater than 0"), [], []
+
+    #Make sure sideboard is valid
+    try:
+        sideBoard = int(sideBoard)
+        if sideBoard != 0 and sideBoard != 1:
+            return("Error!\nSideboard must be 0 or 1"), [], []
+    except:
+        return("Error!\nSideboard must be 0 or 1"), [], []
     return deck_mode, setsToInclude, ccToInclude
 #----------------------------------------------------------
 #----------------------------------------------------------
@@ -325,7 +313,7 @@ def color_removal(card_list, colorCombo, deck_mode):
             #If that card isnt a land
             if card_list[x][y][2] != -1:
 
-                #If that card is a split mana card
+                #If that card is a split mana card and the format is not brawl
                 if card_list[x][y][2].find("/") != -1 and deck_mode != "brawl":
 
                     #Make all color combos with the splits
@@ -616,7 +604,7 @@ def generateDeck(setsToInclude, normal_rarity_percents, commander_rarity_percent
     """
 
     #Checking the information
-    deck_mode, setsToInclude, possibleColorCombos = verifyInformation(setsToInclude, possibleColorCombos, normal_rarity_percents, commander_rarity_percents, land_rarity_percents, artifact_percent, basic_land_percent, basic_land_percent_removal, deck_mode, numberOfLands, deckSize)
+    deck_mode, setsToInclude, possibleColorCombos = verifyInformation(setsToInclude, possibleColorCombos, normal_rarity_percents, commander_rarity_percents, land_rarity_percents, artifact_percent, basic_land_percent, basic_land_percent_removal, deck_mode, numberOfLands, deckSize, sideBoard)
 
     #Casting the information
     if setsToInclude == [] and possibleColorCombos == []:
@@ -698,7 +686,7 @@ def generateDeck(setsToInclude, normal_rarity_percents, commander_rarity_percent
     if error != "":
         return(error)
 
-    #Might need to pick more cards
+    #Might need to pick more cards to fill the deck size
     deck, deckCMC, colorCombo, error = pick_a_card_helper(normal, normal_rarity_percents, deckCMC, deck, artifact_percent, basic_land_percent, deck_size, 1, deck_mode)
     if error != "":
         return(error)
@@ -1014,6 +1002,5 @@ if __name__ == "__main__":
     Button(root, text='Generate', command=generate_helper, height = 2, width = 6).place(x=500, y=10)
     Button(root, text='Copy\nDeck', command=copy_to_clipboard, height = 2, width = 6).place(x=580, y=10)
     Button(root, text='Reset', command=reset_to_default, height = 2, width = 6).place(x=500, y=70)
-    root.mainloop()
-        
+    root.mainloop() 
 #----------------------------------------------------------
