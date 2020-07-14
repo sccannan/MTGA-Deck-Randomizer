@@ -3,21 +3,19 @@
 To generate HTML documentation for this program issue the
 command:
     pydoc3 -w randomizer
-
 """
 #---------------------------------------------------------
 #---------------------------------------------------------
 import json
 from random import randint
-import tkinter
 from tkinter import *
 #---------------------------------------------------------
 #---------------------------------------------------------
 
 #---------------------------------------------------------
 #---------------------------------------------------------
-def verifyInformation(sets, possibleColorCombos, normal_rarity_percents, commander_rarity_percents, land_rarity_percents, artifact_percent, basic_land_percent, basic_land_percent_removal, deck_mode, numberOfLands, deckSize, sideBoard):
-    """Makes sure all passed in information is valid (correct typing, values, etc)
+def parseInformation(sets, possibleColorCombos, normal_rarity_percents, commander_rarity_percents, land_rarity_percents, artifact_percent, basic_land_percent, basic_land_percent_removal, deck_mode, numberOfLands, deckSize, sideBoard):
+    """Makes sure all passed in information is valid (correct typing, values, etc) and translate it to the format we want
 
     Args:
         sets (list): A list of 0/1 values for including certain sets
@@ -27,131 +25,157 @@ def verifyInformation(sets, possibleColorCombos, normal_rarity_percents, command
         land_rarity_percents (list): A list of percentages (int) for each rarity for lands
         artifact_percents (int): An int for how often we want to pick an artifact if we randomly select one
         basic_land_percent (int): An int for how often we want to pick a basic land
-        basic_land_percent_removal (int): A decimal for modifying basic_land_percent
-        deck_mode (str): A string representing what type of format we want to use
+        basic_land_percent_removal (int): An int for modifying basic_land_percent
+        deck_mode (str): A string representing what type of deck format we want to use
         numberOfLands (list): A list containing the minimum number of lands [0] you want in a deck, and the maximum number of lands [1] you want in a deck
         deckSize (int): The deck size
         sideBoard (int): 0 for no sideboard, 1 for sideboard
+        errorMsg (str): An error message, if applicable
 
     Returns:
-        str: Either an error message on failure, or the deck mode
-        list: The sets to include
-        list: The possibleColorCombos
+        list: A list of the input parameters now translated (same order as input)
     """
+    
+    retValues = ["", "", "", "", "", "", "", "", "", "", "", "", ""]
 
     #The possible color combinations
     ccToInclude = []
     possibleCC = ["", "R", "W", "G", "U", "B", "RW", "GR", "RU", "BR", "GW", "UW", "BW", "GU", "BG", "BU", "BGR", "GUW", "BRU", "GRW", "BUW", "RUW", "BRW", "BGU", "GRU", "BGW", "BGRU", "BGRW", "GRUW", "BGUW", "BRUW", "BGRUW"]
     if sum(possibleColorCombos) == 0:
-        return("Error!\nAt least 1 mana color box needs to be checked"), [], []
+        retValues[-1] = "Error!\nAt least 1 mana color box needs to be checked"
+        return retValues
+    if len(possibleColorCombos) != len(possibleCC):
+        retValues[-1] = "Error!\nThere are 32 mana combinations available - your list has " + str(len(possibleColorCombos))
+        return retValues
     for x in range(len(possibleColorCombos)):
         if possibleColorCombos[x] == 1:
             ccToInclude.append(possibleCC[x])
         elif possibleColorCombos[x] == 0:
             pass
         else:
-            return("Error!\nUnknown value detected - color list must contain only 0s and 1s"), [], []
+            retValues[-1] = "Error!\nUnknown value detected - color list must contain only 0s and 1s"
+            return retValues
 
-    #Make sure the normal/commander/land percentages are numbers, total 1, there are no negative values, and that there are only 4 values present
+    #Make sure the normal/commander/land percentages are numbers, total 1 after floats, there are no negative values, and that there are only 4 values present
     rarity_percents_list = [normal_rarity_percents, commander_rarity_percents, land_rarity_percents]
     rarity_percents_list_names = ["Normal", "Commander", "Land"]
     for x in range(len(rarity_percents_list)):
         if deck_mode != "brawl" and deck_mode != "friendly brawl" and rarity_percents_list[x] == commander_rarity_percents: #if we arent playing commander, ignore the commander fields
             continue
         if len(rarity_percents_list[x]) != 4:
-            return("Error!\nThere are only 4 rarities in MTG - the provided " + rarity_percents_list_names[x] + " rarities list has", len(rarity_percents_list)), [], []
-        for y in range(4):
+            retValues[-1] = "Error!\nThere are only 4 rarities in MTG - the provided " + rarity_percents_list_names[x] + " rarities list has " + str(len(rarity_percents_list))
+            return retValues
+        for y in range(len(rarity_percents_list[x])):
             try:
-                rarity_percents_list[x][y] = float(rarity_percents_list[x][y])
+                rarity_percents_list[x][y] = float(rarity_percents_list[x][y])/100
             except:
-                return("Error!\nNon numeric value detected for " + rarity_percents_list_names[x] + " rarity"), [], []
+                retValues[-1] = "Error!\nNon numeric value detected for " + rarity_percents_list_names[x] + " rarity"
+                return retValues
             if rarity_percents_list[x][y] < 0:
-                return("Error!\nNegative value detected for " + rarity_percents_list_names[x] + " rarity"), [], []
-        if sum(rarity_percents_list[x]) != 100:
-            return("Error!\n" + rarity_percents_list_names[x] + " rarity decimals dont equal 100"), [], []
+                retValues[-1] = "Error!\nNegative value detected for " + rarity_percents_list_names[x] + " rarity"
+                return retValues
+        if sum(rarity_percents_list[x]) != 1:
+            retValues[-1] = "Error!\nThe sum of " + rarity_percents_list_names[x] + " rarity doesnt equal 100"
+            return retValues
 
     #Makes sure artifact, basic lands, and basic lands removal percentage is 0<x<100 and is a number
     other_rarity_percents_list = [artifact_percent, basic_land_percent, basic_land_percent_removal]
     other_rarity_percents_list_names = ["Artifact", "Basic land", "Basic land removal percentage"]
     for x in range(len(other_rarity_percents_list)):
         try:
-            other_rarity_percents_list[x] = float(other_rarity_percents_list[x])
+            other_rarity_percents_list[x] = float(other_rarity_percents_list[x])/100
         except:
-            return("Error!\nNon numeric value detected for " + other_rarity_percents_list[x] + " percentage"), [], []
-        if other_rarity_percents_list[x] > 100 or other_rarity_percents_list[x] < 0:
-            return("Error!\n" + other_rarity_percents_list[x] + " percentage decimal isnt between 0 and 100"), [], []
+            retValues[-1] = "Error!\nNon numeric value detected for " + other_rarity_percents_list[x] + " percentage"
+            return retValues
+        if other_rarity_percents_list[x] > 1 or other_rarity_percents_list[x] < 0:
+            retValues[-1] = "Error!\n" + other_rarity_percents_list[x] + " percentage isnt between 0 and 100"
+            return retValues
 
     #Make sure the deck size is a number
     try:
         deckSize = int(deckSize)
     except:
-        return("Error!\nNon numeric value detected for deck size"), [], []
+        retValues[-1] = "Error!\nNon numeric value detected for deck size"
+        return retValues
 
     possibleSets = ["DOM", "HA1", "HA2", "HA3", "XLN", "RIX", "M19", "GRN", "RNA", "WAR", "M20", "ELD", "THB", "IKO", "M21"]
 
     #Make sure the deck mode is supported
     if deck_mode == "brawl" or deck_mode == "friendly brawl":
         if deckSize != 60:
-            return("Error!\nBrawl requires at 60 cards"), [], []
+            retValues[-1] = "Error!\nBrawl requires at 60 cards"
+            return retValues
         if deck_mode == "brawl":
             possibleSets = possibleSets[7:]
             sets = sets[7:]
 
     elif deck_mode == "standard":
         if deckSize < 60:
-            return("Error!\nStandard requires at least 60 cards"), [], []
+            retValues[-1] = "Error!\nStandard requires at least 60 cards"
+            return retValues
         possibleSets = possibleSets[7:]
         sets = sets[7:]
 
     elif deck_mode == "pauper":
         if float(normal_rarity_percents[0]) != 1 or float(commander_rarity_percents[0]) != 1 or float(land_rarity_percents[0]) != 1:
-            return("Error!\nPauper only supports commons"), [], []
+            retValues[-1] = "Error!\nPauper only supports commons"
+            return retValues
         if deckSize < 60:
-            return("Error!\nPauper requires at least 60 cards"), [], []
+            retValues[-1] = "Error!\nPauper requires at least 60 cards"
+            return retValues
         deck_mode = "historic"
 
     elif deck_mode == "artisan":
         if ((float(normal_rarity_percents[0]) + float(normal_rarity_percents[1]) != 1) or (float(commander_rarity_percents[0]) + float(commander_rarity_percents[1]) != 1) or (float(land_rarity_percents[0]) + float(land_rarity_percents[1]) != 1)):
-            return("Error!\nArtisan only supports commons or uncommons"), [], []
+            retValues[-1] = "Error!\nArtisan only supports commons or uncommons"
+            return retValues
         if deckSize < 60 or deckSize > 250:
-            return("Error!\nArtisan requires at least 60 cards and maximum 250 cards"), [], []
+            retValues[-1] = "Error!\nArtisan requires at least 60 cards and maximum 250 cards"
+            return retValues
         deck_mode = "standard"
         possibleSets = possibleSets[7:]
         sets = sets[7:]
 
     elif deck_mode == "singleton":
         if deckSize < 60:
-            return("Error!\nSingleton requires at least 60 cards"), [], []
+            retValues[-1] = "Error!\nSingleton requires at least 60 cards"
+            return retValues
         possibleSets = possibleSets[7:]
         sets = sets[7:]
 
     elif deck_mode == "historic":
         if deckSize < 60:
-            return("Error!\nHistoric requires at least 60 cards"), [], []
+            retValues[-1] = "Error!\nHistoric requires at least 60 cards"
+            return retValues
         deck_mode = "historic"
 
     elif deck_mode == "direct game":
         if deckSize < 60:
-            return("Error!\nHistoric requires at least 60 cards"), [], []
+            retValues[-1] = "Error!\nA direct game requires at least 60 cards"
+            return retValues
 
     elif deck_mode == "limited":
         if deckSize < 40:
-            return("Error!\nHistoric requires at least 40 cards"), [], []
+            retValues[-1] = "Error!\nLimited requires at least 40 cards"
+            return retValues
 
     else:
-        return("Error!\nUnsupported deck mode!"), [], []
-        
+        retValues[-1] = "Error!\nUnsupported deck mode!"
+        return retValues
+
     #The sets you want to draw cards from
     setsToInclude = []
     if sum(sets) == 0:
-        return("Error!\nAt least 1 set box needs to be checked that is part of your game format"), [], []
+        retValues[-1] = "Error!\nAt least 1 set box needs to be checked that is part of your game format"
+        return retValues
     for x in range(len(sets)):
         if sets[x] == 1:
             setsToInclude.append(possibleSets[x])
         elif sets[x] == 0:
             pass
         else:
-            return("Error!\nUnknown value detected - sets to include list must contain only 0s and 1s"), [], []
+            retValues[-1] = "Error!\nUnknown value detected - sets to include list must contain only 0s and 1s"
+            return retValues
 
     #Make sure those JSONs exist
     for x in setsToInclude:
@@ -159,31 +183,39 @@ def verifyInformation(sets, possibleColorCombos, normal_rarity_percents, command
             read_file = open("./Sets/"+x+".json", "r", encoding="utf8")
             read_file.close()
         except:
-            return("Error!\nFile \"./Sets/" + x + ".json\" could not be found"), [], []
+            retValues[-1] = "Error!\nFile \"./Sets/" + x + ".json\" could not be found - please make sure it is in the \"Sets\" folder"
 
     #Make sure the number of lands is valid
     try:
         min_lands = int(round(float(numberOfLands[0])))
         max_lands = int(round(float(numberOfLands[1])))
     except:
-        return("Error!\nNon numeric value detected for minimum and/or maximum number of lands"), [], []
+        retValues[-1] = "Error!\nNon numeric value detected for minimum and/or maximum number of lands"
+        return retValues
     if min_lands > max_lands:
-        return("Error!\nMinimum lands must be less than or equal too maximum lands"), [], []
+        retValues[-1] = "Error!\nMinimum lands must be less than or equal too maximum lands"
+        return retValues
     if max_lands > int(deckSize):
-        return("Error!\nMaximum lands must be less than or equal too the maximum deck size"), [], []
+        retValues[-1] = "Error!\nMaximum lands must be less than or equal too the maximum deck size"
+        return retValues
     if min_lands < 0:
-        return("Error!\nMinimum lands must be greater than 0"), [], []
+        retValues[-1] = "Error!\nMinimum lands must be greater than 0"
+        return retValues
     if max_lands < 0:
-        return("Error!\nMaximum lands must be greater than 0"), [], []
+        retValues[-1] = "Error!\nMaximum lands must be greater than 0"
+        return retValues
 
     #Make sure sideboard is valid
     try:
         sideBoard = int(sideBoard)
         if sideBoard != 0 and sideBoard != 1:
-            return("Error!\nSideboard must be 0 or 1"), [], []
+            retValues[-1] = "Error!\nSideboard must be 0 or 1"
+            return retValues
     except:
-        return("Error!\nSideboard must be 0 or 1"), [], []
-    return deck_mode, setsToInclude, ccToInclude
+        retValues[-1] = "Error!\nSideboard must be 0 or 1"
+        return retValues
+
+    return [setsToInclude, ccToInclude, rarity_percents_list[0], rarity_percents_list[1], rarity_percents_list[2], other_rarity_percents_list[0], other_rarity_percents_list[1], other_rarity_percents_list[2], deck_mode, [min_lands, max_lands], deckSize, sideBoard, ""]
 #----------------------------------------------------------
 #----------------------------------------------------------
 
@@ -272,7 +304,7 @@ def load_json_sets(setsToInclude, deck_mode):
                 colorIdentity = ""
                 for y in x["colorIdentity"]:
                     colorIdentity = colorIdentity + y
-                colorIdentity = "".join(sorted(colorIdentity)).replace("/", "")
+                colorIdentity = "".join(sorted(colorIdentity))
 
                 #If the card is a land card
                 if x["types"][0] == "Land":
@@ -605,23 +637,10 @@ def generateDeck(setsToInclude, normal_rarity_percents, commander_rarity_percent
         str: Either an error message on failure, or a string representation of the deck 
     """
 
-    #Checking the information
-    deck_mode, setsToInclude, possibleColorCombos = verifyInformation(setsToInclude, possibleColorCombos, normal_rarity_percents, commander_rarity_percents, land_rarity_percents, artifact_percent, basic_land_percent, basic_land_percent_removal, deck_mode, numberOfLands, deckSize, sideBoard)
-
-    #Casting the information
-    if setsToInclude == [] and possibleColorCombos == []:
-        return deck_mode
-    for x in range(4):
-        normal_rarity_percents[x] = normal_rarity_percents[x]/100
-        if deck_mode == "brawl" or deck_mode == "friendly brawl": #if we arent playing commander, ignore the commander fields
-            commander_rarity_percents[x] = commander_rarity_percents[x]/100
-        land_rarity_percents[x] = land_rarity_percents[x]/100
-    artifact_percent = float(artifact_percent)/100
-    basic_land_percent = float(basic_land_percent)/100
-    basic_land_percent_removal = float(basic_land_percent_removal)/100
-    numberOfLands[0] = int(round(float(numberOfLands[0])))
-    numberOfLands[1] = int(round(float(numberOfLands[1]))) 
-    deck_size = int(deckSize)
+    #Checking and transforming the information
+    setsToInclude, possibleColorCombos, normal_rarity_percents, commander_rarity_percents, land_rarity_percents, artifact_percent, basic_land_percent, basic_land_percent_removal, deck_mode, numberOfLands, deck_size, sideBoard, errorCode = parseInformation(setsToInclude, possibleColorCombos, normal_rarity_percents, commander_rarity_percents, land_rarity_percents, artifact_percent, basic_land_percent, basic_land_percent_removal, deck_mode, numberOfLands, deckSize, sideBoard)
+    if errorCode != "":
+        return errorCode
 
     #Loads the JSONS
     normal = []
@@ -716,7 +735,7 @@ if __name__ == "__main__":
         Attributes:
             vars: pointers to all the checkboxes
         """
-        def __init__(self, parent=None, picks=[], toSelect=0, allBar=True):
+        def __init__(self, parent=None, picks=[], toSelect=0, allBar=True, allBarToggle=True):
             """Inits the checkbar with len(picks) boxes"""
             Frame.__init__(self, parent)
             self.vars = []
@@ -724,7 +743,8 @@ if __name__ == "__main__":
                 var = IntVar()
                 chk = Checkbutton(self, text='All', command=lambda: check_bar_toggle(self), variable=var)
                 chk.pack(side=LEFT)
-                chk.select()
+                if allBarToggle == True:
+                    chk.select()
                 self.vars.append(var)
             for pick in picks:
                 var = IntVar()
@@ -851,13 +871,13 @@ if __name__ == "__main__":
     noColor.pack()
     monoColor = Checkbar(manaFrame, ["R", "W", "G", "U", "B"])
     monoColor.pack()
-    dualColor = Checkbar(manaFrame, ["RW", "RG", "RU", "RB", "WG", "WU", "WB", "GU", "GB", "UB"])
+    dualColor = Checkbar(manaFrame, ["RW", "GR", "RU", "BR", "GW", "UW", "BW", "GU", "BG", "BU"])
     dualColor.pack()
-    triColor = Checkbar(manaFrame, ["RGB", "WGU", "BRU", "GWR", "UWB", "URW", "RWB", "BGU", "RUG", "WGB"])
+    triColor = Checkbar(manaFrame, ["BGR", "GUW", "BRU", "GRW", "BUW", "RUW", "BRW", "BGU", "GRU", "BGW"])
     triColor.pack()
-    quadColor = Checkbar(manaFrame, ["RGBU", "RGBW", "RGWU", "WBUG", "WRBU"], toSelect=1, allBar=False)
+    quadColor = Checkbar(manaFrame, ["BGRU", "BGRW", "GRUW", "BGUW", "BRUW"], toSelect=1, allBarToggle=False)
     quadColor.pack()
-    allColor = Checkbar(manaFrame, ["WRBUG"], toSelect=1, allBar=False)
+    allColor = Checkbar(manaFrame, ["BGRUW"], toSelect=1, allBar=False)
     allColor.pack()
     manaFrame.config(relief=GROOVE, bd=2)
  
