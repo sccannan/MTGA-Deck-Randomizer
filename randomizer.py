@@ -116,7 +116,7 @@ def parseInformation(sets, possibleColorCombos, normal_rarity_percents, commande
         sets = sets[7:]
 
     elif deck_mode == "pauper":
-        if float(normal_rarity_percents[0]) != 1 or float(commander_rarity_percents[0]) != 1 or float(land_rarity_percents[0]) != 1:
+        if float(normal_rarity_percents[0]) != 100 or float(commander_rarity_percents[0]) != 100 or float(land_rarity_percents[0]) != 100:
             retValues[-1] = "Error!\nPauper only supports commons"
             return retValues
         if deckSize < 60:
@@ -125,7 +125,7 @@ def parseInformation(sets, possibleColorCombos, normal_rarity_percents, commande
         deck_mode = "historic"
 
     elif deck_mode == "artisan":
-        if ((float(normal_rarity_percents[0]) + float(normal_rarity_percents[1]) != 1) or (float(commander_rarity_percents[0]) + float(commander_rarity_percents[1]) != 1) or (float(land_rarity_percents[0]) + float(land_rarity_percents[1]) != 1)):
+        if ((float(normal_rarity_percents[0]) + float(normal_rarity_percents[1]) != 100) or (float(commander_rarity_percents[0]) + float(commander_rarity_percents[1]) != 100) or (float(land_rarity_percents[0]) + float(land_rarity_percents[1]) != 100)):
             retValues[-1] = "Error!\nArtisan only supports commons or uncommons"
             return retValues
         if deckSize < 60 or deckSize > 250:
