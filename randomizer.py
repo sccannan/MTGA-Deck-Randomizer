@@ -60,6 +60,10 @@ def parseInformation(sets, possibleColorCombos, normal_rarity_percents, commande
     rarity_percents_list_names = ["Normal", "Commander", "Land"]
     for x in range(len(rarity_percents_list)):
         if deck_mode != "brawl" and deck_mode != "friendly brawl" and rarity_percents_list[x] == commander_rarity_percents: #if we arent playing commander, ignore the commander fields
+            rarity_percents_list[1][0] = 1
+            rarity_percents_list[1][1] = 0
+            rarity_percents_list[1][2] = 0
+            rarity_percents_list[1][3] = 0
             continue
         if len(rarity_percents_list[x]) != 4:
             retValues[-1] = "Error!\nThere are only 4 rarities in MTG - the provided " + rarity_percents_list_names[x] + " rarities list has " + str(len(rarity_percents_list))
@@ -116,7 +120,7 @@ def parseInformation(sets, possibleColorCombos, normal_rarity_percents, commande
         sets = sets[7:]
 
     elif deck_mode == "pauper":
-        if float(normal_rarity_percents[0]) != 100 or float(commander_rarity_percents[0]) != 100 or float(land_rarity_percents[0]) != 100:
+        if rarity_percents_list[0][0] != 1 or rarity_percents_list[1][0] != 1 or rarity_percents_list[2][0] != 1:
             retValues[-1] = "Error!\nPauper only supports commons"
             return retValues
         if deckSize < 60:
@@ -125,7 +129,7 @@ def parseInformation(sets, possibleColorCombos, normal_rarity_percents, commande
         deck_mode = "historic"
 
     elif deck_mode == "artisan":
-        if ((float(normal_rarity_percents[0]) + float(normal_rarity_percents[1]) != 100) or (float(commander_rarity_percents[0]) + float(commander_rarity_percents[1]) != 100) or (float(land_rarity_percents[0]) + float(land_rarity_percents[1]) != 100)):
+        if ((rarity_percents_list[0][0] + rarity_percents_list[0][1] != 1) or (rarity_percents_list[1][0] + rarity_percents_list[1][1] != 1) or (rarity_percents_list[2][0] + rarity_percents_list[2][1] != 1)):
             retValues[-1] = "Error!\nArtisan only supports commons or uncommons"
             return retValues
         if deckSize < 60 or deckSize > 250:
