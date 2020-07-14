@@ -805,6 +805,13 @@ if __name__ == "__main__":
         event.widget.tk_focusNext().focus()
         return("break")
 
+    def focus_previous_widget(event):
+        """
+        Goes to the previous text box on <Tab> or <Return>
+        """
+        event.widget.tk_focusPrev().focus()
+        return("break")
+
     def check_bar_toggle(checkbar):
         if sum(list(checkbar.state())[1:]) != len(list(checkbar.state()))-1:
             checkbar.all_on()
@@ -900,6 +907,7 @@ if __name__ == "__main__":
         normalList.append(Text(normalFrame, height=1, width=10))
         normalList[x].bind("<Tab>", focus_next_widget)
         normalList[x].bind("<Return>", focus_next_widget)
+        normalList[x].bind("<Shift-Tab>", focus_previous_widget)
         normalList[x].insert(END, normalListVariable[x])
         normalList[x].grid(row=x, column=1)
         Label(normalFrame, text="%").grid(row=x, column=2)
@@ -918,6 +926,7 @@ if __name__ == "__main__":
         commanderList.append(Text(commanderFrame, height=1, width=10))
         commanderList[x].bind("<Tab>", focus_next_widget)
         commanderList[x].bind("<Return>", focus_next_widget)
+        commanderList[x].bind("<Shift-Tab>", focus_previous_widget)
         commanderList[x].insert(END, commanderListVariable[x])
         commanderList[x].grid(row=x, column=1)
         Label(commanderFrame, text="%").grid(row=x, column=2)
@@ -936,6 +945,7 @@ if __name__ == "__main__":
         landList.append(Text(landFrame, height=1, width=10))
         landList[x].bind("<Tab>", focus_next_widget)
         landList[x].bind("<Return>", focus_next_widget)
+        landList[x].bind("<Shift-Tab>", focus_previous_widget)
         landList[x].insert(END, landListVariable[x])
         landList[x].grid(row=x, column=1)
         Label(landFrame, text="%").grid(row=x, column=2)
@@ -960,6 +970,7 @@ if __name__ == "__main__":
     for x in range(len(landsList)):
         landsList[x].bind("<Tab>", focus_next_widget)
         landsList[x].bind("<Return>", focus_next_widget)
+        landsList[x].bind("<Shift-Tab>", focus_previous_widget)
         landsList[x].insert(END, landsListVariable[x])
         landsList[x].grid(row=x, column=1)
         if x == 0 or x == 1:
@@ -978,6 +989,7 @@ if __name__ == "__main__":
     artifactPercent = Text(miscFrame, height=1, width=16)
     artifactPercent.bind("<Tab>", focus_next_widget)
     artifactPercent.bind("<Return>", focus_next_widget)
+    artifactPercent.bind("<Shift-Tab>", focus_previous_widget)
     gmVariable = StringVar(miscFrame)
     gmVariable.set("brawl") # default value
     gameMode = OptionMenu(miscFrame, gmVariable, "artisan", "brawl", "direct game", "friendly brawl", "historic", "limited", "pauper", "singleton", "standard")
@@ -988,6 +1000,7 @@ if __name__ == "__main__":
     deck_size = Text(miscFrame, height=1, width=16)
     deck_size.bind("<Tab>", focus_next_widget)
     deck_size.bind("<Return>", focus_next_widget)
+    deck_size.bind("<Shift-Tab>", focus_previous_widget)
     deck_size.insert(END, "60")
     deck_size.grid(row=1, column=1)
     gameMode.grid(row=2, column=1)

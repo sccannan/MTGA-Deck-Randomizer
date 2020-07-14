@@ -61,7 +61,7 @@ This application is a way for a user to randomly generate a Magic the Gathering 
 * Basic Land Removal Percentage: For each color in your deck past the first, this number will get subtracted from Basic Land Percentage so that the more colors in your deck, the more likely you will get non basic lands, which will help with mana fixing
 * Artifact Percentage: The odds that you will randomly select an artifact. This is here because artifacts can be run in any deck, so this will limit the amount that can be randomly generated in a deck
 
-## Algorithm 
+## Algorithm (How is works) 
 1. Verify all the information the user has entered and translate it to the format the program wants. If the user entered bad information, it will error and tell them.
 2. Based on the sets and the game mode the user specified, load all the cards from those sets that are legal, keeping track of the name, color identity, converted mana cost (CMC), and type (Land, Creature, etc).
 3. If the game mode is brawl or friendly brawl, randomly select a commander based on the commander rarities that fits one of the user specified color combinations. If the game mode is not brawl, randomly choose a user specified color combination for the deck.
@@ -72,7 +72,7 @@ This application is a way for a user to randomly generate a Magic the Gathering 
 8. Possibly select a sideboard of 15 non land cards (same as 5).
 9. Print the deck.
 
-## Link for JSONS
+## Link for JSONs
 All credit for the JSON files that list all the cards goes to [MTGJSON](https://mtgjson.com/)
 
 ## Pydocs
