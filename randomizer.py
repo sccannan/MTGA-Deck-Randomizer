@@ -30,7 +30,6 @@ def parseInformation(sets, possibleColorCombos, normal_rarity_percents, commande
         numberOfLands (list): A list containing the minimum number of lands [0] you want in a deck, and the maximum number of lands [1] you want in a deck
         deckSize (int): The deck size
         sideBoard (int): 0 for no sideboard, 1 for sideboard
-        errorMsg (str): An error message, if applicable
 
     Returns:
         list: A list of the input parameters now translated (same order as input)
@@ -184,6 +183,7 @@ def parseInformation(sets, possibleColorCombos, normal_rarity_percents, commande
             read_file.close()
         except:
             retValues[-1] = "Error!\nFile \"./Sets/" + x + ".json\" could not be found - please make sure it is in the \"Sets\" folder"
+            return retValues
 
     #Make sure the number of lands is valid
     try:
