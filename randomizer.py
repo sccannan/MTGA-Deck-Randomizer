@@ -101,7 +101,7 @@ def parseInformation(sets, possibleColorCombos, normal_rarity_percents, commande
         retValues[-1] = "Error!\nNon numeric value detected for deck size"
         return retValues
 
-    possibleSets = ["DOM", "HA1", "HA2", "HA3", "XLN", "RIX", "M19", "GRN", "RNA", "WAR", "M20", "ELD", "THB", "IKO", "M21"]
+    possibleSets = ["XLN", "RIX", "DOM", "M19", "GRN", "RNA", "WAR", "M20", "ELD", "THB", "IKO", "M21", "ZNR", "KHM", "STX", "AFR", "MID", "VOW", "NEO", "SNC", "DMU", "BRO", "ONE", "MOM"]
 
     #Make sure the deck mode is supported
     if deck_mode == "brawl" or deck_mode == "friendly brawl":
@@ -272,6 +272,8 @@ def load_json_sets(setsToInclude, deck_mode):
                     continue
             elif x["layout"] == "split": #split cards use both names
                 cardName = x["names"][0] + " // " + x["names"][1]
+            elif x["name"].find("//") != -1:
+                cardName = x["name"][0:x["name"].index("//")]
             else:
                 cardName = x["name"]
 
@@ -774,7 +776,7 @@ if __name__ == "__main__":
         """
         A helper method to call deck generation
         """
-        setsToInclude = list(setCheckBar.state())[1:] + list(setCheckBar2.state())[1:]
+        setsToInclude = list(setCheckBar.state())[1:] + list(setCheckBar2.state())[1:] + list(setCheckBar3.state())[1:]
         normal_rarity_percents = [normalList[0].get("1.0",END), normalList[1].get("1.0",END), normalList[2].get("1.0",END), normalList[3].get("1.0",END)]
         commander_rarity_percents = [commanderList[0].get("1.0",END), commanderList[1].get("1.0",END), commanderList[2].get("1.0",END), commanderList[3].get("1.0",END)]
         land_rarity_percents = [landList[0].get("1.0",END), landList[1].get("1.0",END), landList[2].get("1.0",END), landList[3].get("1.0",END)]
@@ -859,25 +861,37 @@ if __name__ == "__main__":
     root.geometry("1000x870")
     root.title("MTGA Random Deck Generator")
     root.iconphoto(False, PhotoImage(file='icon.png'))
+    xPos = 10
+    yPos = 10
 
     #Sets
     setLabel = Label(root, text="Historic Sets")
-    setLabel.place(x=10, y=10)
-    setCheckBar = Checkbar(root, ["DOM","HA1","HA2","HA3","XLN","RIX","M19"])
-    setCheckBar.place(x=10, y=30)
-    setCheckBar.config(relief=GROOVE, bd=2)
+    setLabel.place(x=xPos, y=yPos)
+    setFrame = Frame(root)
+    setFrame.pack()
+    yPos = yPos + 20
+    setFrame.place(x=xPos, y=yPos)
+    setCheckBar = Checkbar(setFrame, ["XLN","RIX","DOM","M19","GRN","RNA","WAR","M20"])
+    setCheckBar.pack()
+    setCheckBar2 = Checkbar(setFrame,["ELD","THB","IKO","M21","ZNR","KHM","STX","AFR"])
+    setCheckBar2.pack()
+    setFrame.config(relief=GROOVE, bd=2)
     setLabel = Label(root, text="Standard Sets")
-    setLabel.place(x=10, y=60)
-    setCheckBar2 = Checkbar(root, ["GRN","RNA","WAR","M20","ELD","THB","IKO","M21"])
-    setCheckBar2.place(x=10, y=80)
-    setCheckBar2.config(relief=GROOVE, bd=2)
+    yPos = yPos + 60
+    setLabel.place(x=xPos, y=yPos)
+    setCheckBar3 = Checkbar(root, ["MID","VOW","NEO","SNC","DMU","BRO","ONE","MOM"])
+    yPos = yPos + 20
+    setCheckBar3.place(x=xPos, y=yPos)
+    setCheckBar3.config(relief=GROOVE, bd=2)
 
     #Mana Colors
     manaLabel = Label(root, text="Mana Colors")
-    manaLabel.place(x=10, y=110)
+    yPos = yPos + 30
+    manaLabel.place(x=xPos, y=yPos)
     manaFrame = Frame(root)
     manaFrame.pack()
-    manaFrame.place(x=10, y=130)
+    yPos = yPos + 20
+    manaFrame.place(x=xPos, y=yPos)
     noColor = Checkbar(manaFrame, ["Colorless"], allBar=False)
     noColor.pack()
     monoColor = Checkbar(manaFrame, ["R", "W", "G", "U", "B"])
@@ -896,10 +910,12 @@ if __name__ == "__main__":
 
     #Normal Cards
     normalCard = Label(root, text="Normal Card Rarities")
-    normalCard.place(x=10, y=290)
+    yPos = yPos + 160
+    normalCard.place(x=xPos, y=yPos)
     normalFrame = Frame(root)
     normalFrame.pack()
-    normalFrame.place(x=10, y=310)
+    yPos = yPos + 20
+    normalFrame.place(x=xPos, y=yPos)
     normalList = []
     normalListVariable = ["15", "75", "10", "0"]
     for x in range(4):
@@ -915,10 +931,13 @@ if __name__ == "__main__":
 
     #Commander Cards
     commanderCard = Label(root, text="Commander Card Rarities")
-    commanderCard.place(x=210, y=290)
+    xPos = xPos + 200
+    yPos = yPos - 20
+    commanderCard.place(x=xPos, y=yPos)
     commanderFrame = Frame(root)
     commanderFrame.pack()
-    commanderFrame.place(x=210, y=310)
+    yPos = yPos + 20
+    commanderFrame.place(x=xPos, y=yPos)
     commanderList = []
     commanderListVariable = ["0", "25", "50", "25"]
     for x in range(4):
@@ -934,10 +953,13 @@ if __name__ == "__main__":
 
     #Land Cards
     landCard = Label(root, text="Land Card Rarities")
-    landCard.place(x=410, y=290)
+    xPos = xPos + 200
+    yPos = yPos - 20
+    landCard.place(x=xPos, y=yPos)
     landFrame = Frame(root)
     landFrame.pack()
-    landFrame.place(x=410, y=310)
+    yPos = yPos + 20
+    landFrame.place(x=xPos, y=yPos)
     landList = []
     landListVariable = ["50", "50", "0", "0"]
     for x in range(4):
@@ -953,10 +975,13 @@ if __name__ == "__main__":
 
     #Mana/Land Fixing
     landMana = Label(root, text="Lands")
-    landMana.place(x=10, y=420)
+    xPos = xPos - 400
+    yPos = yPos + 100
+    landMana.place(x=xPos, y=yPos)
     landManaFrame = Frame(root)
     landManaFrame.pack()
-    landManaFrame.place(x=10, y=440)
+    yPos = yPos + 20
+    landManaFrame.place(x=xPos, y=yPos)
     Label(landManaFrame, text="Basic Land Percentage").grid(row=0)
     Label(landManaFrame, text="Basic Land Removal Percentage").grid(row=1)
     Label(landManaFrame, text="Minimum Lands").grid(row=2)
@@ -979,10 +1004,13 @@ if __name__ == "__main__":
 
     #Misc
     misc = Label(root, text="Misc")
-    misc.place(x=350, y=420)
+    xPos = xPos + 300
+    yPos = yPos - 20
+    misc.place(x=xPos, y=yPos)
     miscFrame = Frame(root)
     miscFrame.pack()
-    miscFrame.place(x=350, y=440)
+    yPos = yPos + 20
+    miscFrame.place(x=xPos, y=yPos)
     Label(miscFrame, text="Artifact Percent").grid(row=0)
     Label(miscFrame, text="Deck Size").grid(row=1)
     Label(miscFrame, text="Game Mode").grid(row=2)
@@ -1036,8 +1064,9 @@ if __name__ == "__main__":
     T2.pack(side=LEFT)
     S3.config(command=T2.yview)
     T2.config(yscrollcommand=S3.set)
-    T2.insert(END, "Sets: Check the sets you want to play with\nDOM = Dominaria\nHA1 = Historic Anthology 1\nHA2 = Historic Anthology 2\nHA3 = Historic Anthology 3\nXLN = Ixalan\nRIX = Rivals of Ixalan\nM19 = Core 2019\nGRN = Guilds of Ravnica\nRNA = Ravnica Allegiance\nWAR = War of the Spark\nM20 = Core 2020\nELD = Throne of Eldraine\nTHB = Theros Beyond Death\nIKO = Ikoria\nM21 = Core 2021\n\nMana Colors: Check the mana colors you want your deck possibly being. If you have \"R\", \"W\", and \"RW\", theres a 33% chance your deck is only Red, a 33% chance your deck is only White, and a 33% chance your deck is Red and White\nR = Red\nW = White\nG = Green\nU = Blue\nB = Black\n\nRarities: The odds you want to get a card of a certain rarity. For example, normal common = .25 means there's a 25% chance, for each normal card in your deck, it will be a common\n\nBasic Land Percentage: The odds that for each land, it will be a basic land. This is applied before checking the rarity of each land\n\nBasic Land Removal Percentage: For each color in your deck past the first, this number will get subtracted from Basic Land Percentage so that the more colors in your deck, the more likely you will get non basic lands, which wil help with mana fixing\n\nArtifact Percentage: The odds that you will randomly select an artifact. This is here because artifacts can be run in any deck, so this will limit the amount that can be randomly generated in a deck\n\nHistoric and Traditional Historic - 60+ cards, historic legal, 4 similar card max\n\nStandard and Traditional Standard - 60+ cards, standard legal, 4 similar card max\n\nBrawl - 59 unique cards, 1 unique commander, standard legal\n\nFriendly Brawl - 59 unique cards, 1 unique commander, historic legal\n\nSingleton - 60 unique cards, standard legal\n\nArtisan - 60-250 cards, historic legal, commons or uncommons only, 4 similar card max\n\nPauper - 60+ cards, standard legal, commons only, 4 similar card max\n\nLimited - 40+ cards\n\nDirect Game - 60+ cards, historic legal, 4 similar card max")
+    T2.insert(END, "Sets: Check the sets you want to play with\nXLN = Ixalan\nRIX = Rivals of Ixalan\nDOM = Dominaria\nM19 = Core 2019\nGRN = Guilds of Ravnica\nRNA = Ravnica Allegiance\nWAR = War of the Spark\nM20 = Core 2020\nELD = Throne of Eldraine\nTHB = Theros Beyond Death\nIKO = Ikoria\nM21 = Core 2021\nZNR = Zendikar Rising\nKHM = Kaldheim\nSTX = Strixhaven\nAFR = DND Forgotten Realmns\nMID = Innistrad: Midnight Hunt\nVOW = Innistrad: Crimson Vow\nNEO = Kamigawa: Neon Dynasty\nSNC = Streets of New Capenna\nDMU = Dominaria United\nBRO = Brothers' War\nONE = Pyrexia: All Will Be One\nMOM = March of the Machines\n\nMana Colors: Check the mana colors you want your deck possibly being. If you have \"R\", \"W\", and \"RW\", theres a 33% chance your deck is only Red, a 33% chance your deck is only White, and a 33% chance your deck is Red and White\nR = Red\nW = White\nG = Green\nU = Blue\nB = Black\n\nRarities: The odds you want to get a card of a certain rarity. For example, normal common = .25 means there's a 25% chance, for each normal card in your deck, it will be a common\n\nBasic Land Percentage: The odds that for each land, it will be a basic land. This is applied before checking the rarity of each land\n\nBasic Land Removal Percentage: For each color in your deck past the first, this number will get subtracted from Basic Land Percentage so that the more colors in your deck, the more likely you will get non basic lands, which wil help with mana fixing\n\nArtifact Percentage: The odds that you will randomly select an artifact. This is here because artifacts can be run in any deck, so this will limit the amount that can be randomly generated in a deck\n\nHistoric and Traditional Historic - 60+ cards, historic legal, 4 similar card max\n\nStandard and Traditional Standard - 60+ cards, standard legal, 4 similar card max\n\nBrawl - 59 unique cards, 1 unique commander, standard legal\n\nFriendly Brawl - 59 unique cards, 1 unique commander, historic legal\n\nSingleton - 60 unique cards, standard legal\n\nArtisan - 60-250 cards, historic legal, commons or uncommons only, 4 similar card max\n\nPauper - 60+ cards, standard legal, commons only, 4 similar card max\n\nLimited - 40+ cards\n\nDirect Game - 60+ cards, historic legal, 4 similar card max")
     T2.configure(state='disabled')
+    yPos = 80
     Button(root, text='Quit', command=root.quit, height = 2, width = 6).place(x=580, y=70)
     Button(root, text='Generate', command=generate_helper, height = 2, width = 6).place(x=500, y=10)
     Button(root, text='Copy\nDeck', command=copy_to_clipboard, height = 2, width = 6).place(x=580, y=10)
